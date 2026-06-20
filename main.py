@@ -93,7 +93,7 @@ def home():
         </footer>
 
         <script>
-             // LAYER 1: GLOBAL DATA REGISTRY
+            // LAYER 1: GLOBAL DATA REGISTRY
     let session = {
         email: "",
         role: "",
@@ -107,17 +107,27 @@ def home():
     let nextBuyerSequence = 1;
     let nextSellerSequence = 1;
 
-    const propertiesData = [
-        { id: 101, title: "Modern 3-Bedroom Apartment", area: "Bodija, Ibadan" },
-        { id: 102, title: "Luxury Serviced Duplex", area: "Lekki Phase 1, Lagos" },
-        { id: 103, title: "Commercial Office Suite", area: "Garki, Abuja" }
-    ];
+    let propertiesData = [];
 
     const currencyRates = {
-        "nigeria": { symbol: "NGN ₦", rate: 1600 },
+        "united states": { symbol: "USD $", rate: 1 },
+        "united kingdom": { symbol: "GBP £", rate: 0.79 },
+        "eurozone": { symbol: "EUR €", rate: 0.93 },
+        "canada": { symbol: "CAD $", rate: 1.37 },
+        "australia": { symbol: "AUD $", rate: 1.51 },
+        "japan": { symbol: "JPY ¥", rate: 157 },
+        "china": { symbol: "CNY ¥", rate: 7.25 },
+        "india": { symbol: "INR ₹", rate: 83.5 },
+        "south africa": { symbol: "ZAR R", rate: 18.2 },
+        "united arab emirates": { symbol: "AED", rate: 3.67 },
+        "saudi arabia": { symbol: "SAR", rate: 3.75 },
+        "brazil": { symbol: "BRL R$", rate: 5.36 },
+        "mexico": { symbol: "MXN $", rate: 18.4 },
+        "nigeria": { symbol: "NGN", rate: 1600 },
         "ghana": { symbol: "GHS ₵", rate: 15 },
-        "united states": { symbol: "USD $", rate: 1 }
+        "kenya": { symbol: "KES KSh", rate: 129 }
     };
+
      // LAYER 2: CORE AUTHENTICATION TRIGGERS
     function handleGmailLogin() {
         const emailInput = document.getElementById('login-email').value.trim();
@@ -184,7 +194,7 @@ def home():
         document.getElementById('view-marketplace').classList.remove('hidden');
         renderInventory(propertiesData);
     }
-    // LAYER 5: INVENTORY RENDER ENGINE
+        // LAYER 5: INVENTORY RENDER ENGINE
     function renderInventory(items) {
         const grid = document.getElementById('inventory-grid');
         grid.innerHTML = '';
@@ -199,16 +209,19 @@ def home():
 
         let currency = "USD $";
         let rate = 1;
-        const userCountry = session.country.toLowerCase();
+        const userCountry = session.country.toLowerCase().trim();
 
         if (currencyRates[userCountry]) {
             currency = currencyRates[userCountry].symbol;
             rate = currencyRates[userCountry].rate;
+        } else if (userCountry !== "") {
+            // Smart Fallback for all 195 countries: cuts the first 3 letters of their country name to make a currency code
+            currency = userCountry.substring(0, 3).toUpperCase() + " $";
+            rate = 1; 
         }
 
         items.forEach(item => {
-            const basePriceUSD = item.id === 101 ? 150000 : item.id === 102 ? 220000 : item.id === 103 ? 95000 : 180000;
-            const convertedPrice = (basePriceUSD * rate).toLocaleString();
+            const convertedPrice = (item.priceUSD * rate).toLocaleString();
 
             const cardHtml = `
                 <div class="zinc-card rounded-xl p-4 border border-zinc-900 shadow-lg space-y-3">
@@ -230,6 +243,7 @@ def home():
             grid.insertAdjacentHTML('beforeend', cardHtml);
         });
     }
+
      // LAYER 6: INSTANT SEARCH SYSTEM
     function executeInstantSearch() {
         const query = document.getElementById('market-search').value.toLowerCase().trim();
