@@ -62,7 +62,40 @@ def home():
         </footer>
 
         <script>
-            function handleGmailLogin() {
+            // LAYER 1: GLOBAL DATA REGISTRY (EMOJI-FREE STRUCTURAL MATRIX)
+    let session = { 
+        email: "", 
+        role: "", 
+        phone: "", 
+        country: "", 
+        state: "",
+        registrationNumber: "" 
+    };
+    
+    let currentSelectedPropertyIndex = null;
+    let watchedAdsCount = 0;
+
+    // GLOBAL EXCHANGE RATES MATRIX (BASE UNIT AGAINST US DOLLAR VALUE EQUIVALENCE)
+    const currencyRates = {
+        "nigeria": { symbol: "NGN ", rate: 1500 },
+        "ghana": { symbol: "GHS ", rate: 15 },
+        "united states": { symbol: "USD $", rate: 1 },
+        "united kingdom": { symbol: "GBP £", rate: 0.78 }
+    };
+
+    // SYSTEM REGISTRATION SEED COUNTERS
+    let nextBuyerSequence = 0; 
+    let nextSellerSequence = 1;
+
+    // GLOBAL PROPERTY INVENTORY DATABASE (STORED IN STANDARD LOCAL BASE VALUE)
+    let propertiesData = [
+        { id: 101, title: "Luxury 3 Bedroom Duplex", area: "Gra Phase 2", city: "Asaba", state: "Delta", country: "Nigeria", basePriceUSD: 30000, isVideo: false, rawStars: 450 },
+        { id: 102, title: "Modern Condo Complex", area: "Lekki Phase 1", city: "Lagos", state: "Lagos", country: "Nigeria", basePriceUSD: 56600, isVideo: true, rawStars: 920 },
+        { id: 103, title: "Urban Executive Studio", area: "Bodija", city: "Ibadan", state: "Oyo", country: "Nigeria", basePriceUSD: 10000, isVideo: false, rawStars: 120 },
+        { id: 104, title: "Suburban Family Villa", area: "East Legon", city: "Accra", state: "Greater Accra", country: "Ghana", basePriceUSD: 45000, isVideo: true, rawStars: 310 }
+    ];
+
+            function handleGmailLogin() { 
                 const emailInput = document.getElementById('login-email').value;
                 if(!emailInput || !emailInput.includes('@gmail.com')) { 
                     alert("Provide a valid Gmail address."); 
