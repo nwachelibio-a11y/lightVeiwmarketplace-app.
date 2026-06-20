@@ -44,11 +44,11 @@ def home():
                 <h3 class="text-base font-bold mb-1">Select Account Type</h3>
                 <p class="text-xs text-zinc-400 mb-6">Are you searching for housing or listing a property?</p>
                 <div class="grid grid-cols-2 gap-3">
-                    <button onclick="alert('System Active')" class="p-4 bg-zinc-900 border border-zinc-800 rounded-xl">
+                     onclick="systemRole('buyer')" class="p-4 bg-zinc-900 border border-zinc-800 rounded-xl">
                         <span class="block text-xl mb-1">BUYER</span>
                         <span class="text-xs font-bold text-white">I am a Buyer</span>
                     </button>
-                    <button onclick="alert('System Active')" class="p-4 bg-zinc-900 border border-zinc-800 rounded-xl">
+                     onclick="sysyeRole('Seller')" class="p-4 bg-zinc-900 border border-zinc-800 rounded-xl">
                         <span class="block text-xl mb-1">SELLER</span>
                         <span class="text-xs font-bold text-white">I am a Seller</span>
                     </button>
