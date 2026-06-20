@@ -32,13 +32,36 @@ def home():
 
         <main class="flex-1 flex flex-col justify-center my-6">
             
-            <div id="view-login" class="zinc-card rounded-xl p-6 text-center shadow-2xl">
-                <div class="w-12 h-12 bg-zinc-900 border border-zinc-800 text-orange-500 rounded-full flex items-center justify-center mx-auto mb-4 text-xl font-black">G</div>
-                <h2 class="text-lg font-bold mb-1">Sign in to LightView</h2>
-                <p class="text-xs text-zinc-400 mb-5">Connect with your official Google account to browse real estate inventory.</p>
-                <input type="email" id="login-email" placeholder="username@gmail.com" class="w-full bg-zinc-950 border border-zinc-800 rounded-lg px-3 py-2.5 text-sm text-center focus:outline-none focus:border-orange-500 mb-4 text-white">
-                <button onclick="handleGmailLogin()" class="w-full bg-orange-600 text-white text-xs font-bold py-3 rounded-lg tracking-wider">LOG IN WITH GMAIL</button>
-            </div>
+                            <div id="view-login" class="zinc-card rounded-xl p-6 text-center shadow-2xl space-y-4">
+                    <div class="text-center space-y-1">
+                        <h3 id="login-title-header" class="text-base font-bold text-white tracking-wide font-mono">[ACCESS CENTRAL GATEWAY]</h3>
+                        <p id="login-subtitle" class="text-[11px] text-zinc-500">Provide credentials to initialize session link</p>
+                    </div>
+
+                    <div id="email-input-group" class="space-y-3">
+                        <input type="text" id="login-email" placeholder="Enter Gmail Address (e.g. name@gmail.com)" class="w-full bg-zinc-950 border border-zinc-900 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-zinc-700 tracking-wide font-mono">
+                        
+                        <div id="setup-pin-group" class="space-y-1 text-left">
+                            <label class="text-[9px] text-zinc-500 font-mono tracking-wide">[CREATE 4-DIGIT SECURITY PIN]</label>
+                            <input type="password" id="login-pin" maxlength="4" placeholder="••••" class="w-full bg-zinc-950 border border-zinc-900 rounded-lg px-3 py-2 text-center text-sm font-bold text-white focus:outline-none focus:border-zinc-700 tracking-widest font-mono">
+                        </div>
+
+                        <button onclick="handleGmailLogin()" class="w-full bg-orange-600 hover:bg-orange-700 text-white text-xs font-bold py-2.5 rounded-lg transition tracking-wide font-mono">
+                            INITIALIZE SECURE ACCESS
+                        </button>
+                    </div>
+
+                    <div id="quick-pin-group" class="hidden space-y-3 p-2 text-center">
+                        <p class="text-xs text-zinc-400">Welcome Back</p>
+                        <p id="quick-login-email" class="text-xs text-orange-400 font-bold font-mono"></p>
+                        <input type="password" id="returning-pin" maxlength="4" placeholder="ENTER PIN TO UNLOCK" class="w-full bg-zinc-900 border border-zinc-800 rounded-lg px-3 py-2 text-center text-sm font-bold text-white focus:outline-none focus:border-zinc-700 tracking-widest font-mono">
+                        <button onclick="handleQuickPinUnlock()" class="w-full bg-white hover:bg-zinc-200 text-black text-xs font-bold py-2 rounded-lg transition tracking-wide font-mono">
+                            UNLOCK PROFILE
+                        </button>
+                        <button onclick="handleForgetSession()" class="text-[10px] text-zinc-600 underline block mx-auto pt-1">Use a different account</button>
+                    </div>
+                </div>
+
 
             <div id="view-role" class="hidden zinc-card rounded-xl p-6 text-center shadow-2xl">
                 <h3 class="text-base font-bold mb-1">Select Account Type</h3>
@@ -143,17 +166,78 @@ def home():
         "kenya": { symbol: "KES KSh", rate: 129 }
     };
 
-     // LAYER 2: CORE AUTHENTICATION TRIGGERS
+    // LAYER 2: CORE AUTHENTICATION TRIGGERS & SESSION PERSISTENCE (PIN PROTECTED)
     function handleGmailLogin() {
         const emailInput = document.getElementById('login-email').value.trim();
+        const pinInput = document.getElementById('login-pin').value.trim();
+
         if (!emailInput || !emailInput.includes('@gmail.com')) {
             alert("Provide a valid Gmail address.");
             return;
         }
+        if (pinInput.length !== 4 || isNaN(pinInput)) {
+            alert("Security PIN must be exactly 4 numbers.");
+            return;
+        }
+        
         session.email = emailInput;
+        session.pin = pinInput; // Lock password into temporary memory
+        
         document.getElementById('view-login').classList.add('hidden');
         document.getElementById('view-role').classList.remove('hidden');
     }
+
+    function handleQuickPinUnlock() {
+        const inputPin = document.getElementById('returning-pin').value.trim();
+        const localProfile = JSON.parse(localStorage.getItem('savedUserProfile'));
+
+        if (inputPin === localProfile.pin) {
+            // PIN Matches perfectly! Restore entire session state
+            session = localProfile;
+            
+            document.getElementById('view-login').classList.add('hidden');
+            document.getElementById('view-marketplace').classList.remove('hidden');
+            
+            // If they are a seller, make sure their management panel unhides
+            if (session.role === 'seller') {
+                document.getElementById('seller-management-panel').classList.remove('hidden');
+            }
+            
+            alert("Access authorized. Welcome back!");
+            renderInventory(propertiesData);
+        } else {
+            alert("INVALID SECURITY PIN. ACCESS DENIED.");
+            document.getElementById('returning-pin').value = '';
+        }
+    }
+
+    function handleForgetSession() {
+        localStorage.removeItem('savedUserProfile');
+        location.reload();
+    }
+
+    // SYSTEM INTERCEPT ON APP BOOTUP
+    window.addEventListener('DOMContentLoaded', () => {
+        // Restore inventory data safely
+        const storedInventory = localStorage.getItem('globalPropertiesBackup');
+        if (storedInventory) {
+            propertiesData = JSON.parse(storedInventory);
+        }
+
+        // Check if device already has a registered profile
+        const savedProfile = localStorage.getItem('savedUserProfile');
+        if (savedProfile) {
+            const profile = JSON.parse(savedProfile);
+            
+            // Hide normal login fields, activate the Quick PIN UI wrapper
+            document.getElementById('email-input-group').classList.add('hidden');
+            document.getElementById('quick-pin-group').classList.remove('hidden');
+            document.getElementById('quick-login-email').innerText = profile.email;
+            document.getElementById('login-title-header').innerText = "[SECURE PIN UNLOCK]";
+            document.getElementById('login-subtitle').innerText = "Device profile detected. Enter numeric password.";
+        }
+    });
+
           
      // LAYER 3 & 4: INTERACTION LOGIC & REGISTRATION
     function selectRole(chosenRole) {
@@ -185,6 +269,8 @@ def home():
         
         document.getElementById('view-buyer-location').classList.add('hidden');
         document.getElementById('view-marketplace').classList.remove('hidden');
+               localStorage.setItem('savedUserProfile', JSON.stringify(session));
+               
         renderInventory(propertiesData);
     }
      function processSellerRegistration() {
@@ -205,6 +291,7 @@ def home():
         
         alert("Seller Verified ID: " + session.registrationNumber);
         
+                localStorage.setItem('savedUserProfile', JSON.stringify(session));
         document.getElementById('view-seller-phone').classList.add('hidden');
         document.getElementById('view-marketplace').classList.remove('hidden');
         renderInventory(propertiesData);
@@ -280,10 +367,11 @@ def home():
         }, 3000);
     }
     // LOGOUT & SESSION EXTENSION SCRIPT
-    function handleLogout() {
-        localStorage.removeItem('savedUserEmail');
+     function handleLogout() {
+        localStorage.removeItem('savedUserProfile');
         location.reload();
     }
+   
 
     // LAYER 7: SELLER ASSET MANAGEMENT ENGINE (PERSISTENT CORES)
     function handleCreateListing() {
@@ -338,7 +426,6 @@ def home():
         </script>
     </body>
     </html>
-    """
     
 
 if __name__ == "__main__":
