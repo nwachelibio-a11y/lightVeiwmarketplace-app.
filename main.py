@@ -92,49 +92,44 @@ def home():
         </footer>
 
         <script>
-            // LAYER 1: GLOBAL DATA REGISTRY (EMOJI-FREE STRUCTURAL MATRIX)
-    let session = { 
-        email: "", 
-        role: "", 
-        phone: "", 
-        country: "", 
+             // LAYER 1: GLOBAL DATA REGISTRY
+    let session = {
+        email: "",
+        role: "",
+        phone: "",
+        country: "",
         state: "",
-        registrationNumber: "" 
-    };
-    
-    let currentSelectedPropertyIndex = null;
-    let watchedAdsCount = 0;
-
-    // GLOBAL EXCHANGE RATES MATRIX (BASE UNIT AGAINST US DOLLAR VALUE EQUIVALENCE)
-    const currencyRates = {
-        "nigeria": { symbol: "NGN ", rate: 1500 },
-        "ghana": { symbol: "GHS ", rate: 15 },
-        "united states": { symbol: "USD $", rate: 1 },
-        "united kingdom": { symbol: "GBP £", rate: 0.78 }
+        registrationNumber: "",
+        watchedAdsCount: 0
     };
 
-    // SYSTEM REGISTRATION SEED COUNTERS
-    let nextBuyerSequence = 0; 
+    let nextBuyerSequence = 1;
     let nextSellerSequence = 1;
 
-    // GLOBAL PROPERTY INVENTORY DATABASE (STORED IN STANDARD LOCAL BASE VALUE)
-    let propertiesData = [
-        { id: 101, title: "Luxury 3 Bedroom Duplex", area: "Gra Phase 2", city: "Asaba", state: "Delta", country: "Nigeria", basePriceUSD: 30000, isVideo: false, rawStars: 450 },
-        { id: 102, title: "Modern Condo Complex", area: "Lekki Phase 1", city: "Lagos", state: "Lagos", country: "Nigeria", basePriceUSD: 56600, isVideo: true, rawStars: 920 },
-        { id: 103, title: "Urban Executive Studio", area: "Bodija", city: "Ibadan", state: "Oyo", country: "Nigeria", basePriceUSD: 10000, isVideo: false, rawStars: 120 },
-        { id: 104, title: "Suburban Family Villa", area: "East Legon", city: "Accra", state: "Greater Accra", country: "Ghana", basePriceUSD: 45000, isVideo: true, rawStars: 310 }
+    const propertiesData = [
+        { id: 101, title: "Modern 3-Bedroom Apartment", area: "Bodija, Ibadan" },
+        { id: 102, title: "Luxury Serviced Duplex", area: "Lekki Phase 1, Lagos" },
+        { id: 103, title: "Commercial Office Suite", area: "Garki, Abuja" }
     ];
 
-            function handleGmailLogin() { 
-                const emailInput = document.getElementById('login-email').value;
-                if(!emailInput || !emailInput.includes('@gmail.com')) { 
-                    alert("Provide a valid Gmail address."); 
-                    return; 
-                }
-                document.getElementById('view-login').classList.add('hidden');
-                document.getElementById('view-role').classList.remove('hidden');
-            }
-                // LAYER 3: INTERACTION LOGIC ENGINE
+    const currencyRates = {
+        "nigeria": { symbol: "NGN ₦", rate: 1600 },
+        "ghana": { symbol: "GHS ₵", rate: 15 },
+        "united states": { symbol: "USD $", rate: 1 }
+    };
+     // LAYER 2: CORE AUTHENTICATION TRIGGERS
+    function handleGmailLogin() {
+        const emailInput = document.getElementById('login-email').value.trim();
+        if (!emailInput || !emailInput.includes('@gmail.com')) {
+            alert("Provide a valid Gmail address.");
+            return;
+        }
+        session.email = emailInput;
+        document.getElementById('view-login').classList.add('hidden');
+        document.getElementById('view-role').classList.remove('hidden');
+    }
+          
+     // LAYER 3 & 4: INTERACTION LOGIC & REGISTRATION
     function selectRole(chosenRole) {
         session.role = chosenRole;
         document.getElementById('view-role').classList.add('hidden');
@@ -157,51 +152,42 @@ def home():
         
         session.country = country;
         session.state = state;
-        
-        // Rule: Buyers start with 0-9 sequence
         session.registrationNumber = "0-" + nextBuyerSequence;
         nextBuyerSequence++;
         
         alert("Buyer Assigned ID: " + session.registrationNumber);
-        // Next step will transition to inventory base display
-        document.getElementById('view-buyer-location').classList.add('hidden');
-document.getElementById('view-marketplace').classList.remove('hidden');
-renderInventory(propertiesData);
-
-    }
         
+        document.getElementById('view-buyer-location').classList.add('hidden');
+        document.getElementById('view-marketplace').classList.remove('hidden');
+        renderInventory(propertiesData);
     }
-    
-    function processSellerRegistration() {
-    const phone = document.getElementById('seller-phone').value.trim();
-    const country = document.getElementById('seller-country').value.trim().toLowerCase();
-    const state = document.getElementById('seller-state').value.trim();
-    
-    if (!phone || !country || !state) {
-        alert("All fields are required for seller verification.");
-        return;
+     function processSellerRegistration() {
+        const phone = document.getElementById('seller-phone').value.trim();
+        const country = document.getElementById('seller-country').value.trim().toLowerCase();
+        const state = document.getElementById('seller-state').value.trim();
+        
+        if (!phone || !country || !state) {
+            alert("All fields are required for seller verification.");
+            return;
+        }
+        
+        session.phone = phone;
+        session.country = country;
+        session.state = state;
+        session.registrationNumber = "1-" + nextSellerSequence;
+        nextSellerSequence++;
+        
+        alert("Seller Verified ID: " + session.registrationNumber);
+        
+        document.getElementById('view-seller-phone').classList.add('hidden');
+        document.getElementById('view-marketplace').classList.remove('hidden');
+        renderInventory(propertiesData);
     }
-    
-    session.phone = phone;
-    session.country = country;
-    session.state = state;
-    
-    session.registrationNumber = "1-" + nextSellerSequence;
-    nextSellerSequence++;
-    
-    alert("Seller Verified ID: " + session.registrationNumber);
-    
-    document.getElementById('view-seller-phone').classList.add('hidden');
-    document.getElementById('view-marketplace').classList.remove('hidden');
-    renderInventory(propertiesData);
-}
-
-        // LAYER 5: INVENTORY RENDER ENGINE (DYNAMIC DOM GENERATOR)
+    // LAYER 5: INVENTORY RENDER ENGINE
     function renderInventory(items) {
         const grid = document.getElementById('inventory-grid');
-        grid.innerHTML = ''; // Wipe shelf clean before rebuilding
+        grid.innerHTML = '';
         
-        // Setup User Badge Info inside marketplace banner
         document.getElementById('display-user-id').innerText = "ID: " + session.registrationNumber;
         document.getElementById('display-user-locale').innerText = "LOCALE: " + session.state + ", " + session.country.toUpperCase();
 
@@ -210,7 +196,6 @@ renderInventory(propertiesData);
             return;
         }
 
-        // Determine currency symbols and rates dynamically
         let currency = "USD $";
         let rate = 1;
         const userCountry = session.country.toLowerCase();
@@ -220,9 +205,7 @@ renderInventory(propertiesData);
             rate = currencyRates[userCountry].rate;
         }
 
-        // Loop through properties and generate HTML cards
         items.forEach(item => {
-            // Default base calculation ($100k - $250k placeholder equivalents scaled to local currency rate)
             const basePriceUSD = item.id === 101 ? 150000 : item.id === 102 ? 220000 : item.id === 103 ? 95000 : 180000;
             const convertedPrice = (basePriceUSD * rate).toLocaleString();
 
@@ -238,7 +221,7 @@ renderInventory(propertiesData);
                         </div>
                         <p class="text-xs text-zinc-400">${item.area}</p>
                     </div>
-                    <button onclick="openPropertyDetails(${item.id})" class="w-full bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 text-white text-[11px] font-bold py-2 rounded-lg transition">
+                    <button onclick="triggerAdGate(${item.id})" class="w-full bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 text-white text-[11px] font-bold py-2 rounded-lg transition">
                         VIEW ASSET SPECIFICATIONS
                     </button>
                 </div>
@@ -246,31 +229,31 @@ renderInventory(propertiesData);
             grid.insertAdjacentHTML('beforeend', cardHtml);
         });
     }
-
-    // Connect registration finishes to this new view layout
-    // Go modify your processBuyerRegistration and processSellerRegistration to run these triggers:
-
-        const phone = document.getElementById('seller-phone').value.trim();
-        const country = document.getElementById('seller-country').value.trim().toLowerCase();
-        const state = document.getElementById('seller-state').value.trim();
-        
-        if (!phone || !country || !state) {
-            alert("All fields are required for seller verification.");
-            return;
-        }
-        
-        session.phone = phone;
-        session.country = country;
-        session.state = state;
-        
-        // Rule: Sellers start with 1 sequence
-        session.registrationNumber = "1-" + nextSellerSequence;
-        nextSellerSequence++;
-        
-        alert("Seller Verified ID: " + session.registrationNumber);
-        // Next step will transition to inventory listing management
+     // LAYER 6: INSTANT SEARCH SYSTEM
+    function executeInstantSearch() {
+        const query = document.getElementById('market-search').value.toLowerCase().trim();
+        const filtered = propertiesData.filter(item => 
+            item.title.toLowerCase().includes(query) || 
+            item.area.toLowerCase().includes(query)
+        );
+        renderInventory(filtered);
     }
 
+    // LAYER 7: GOOGLE ADS INTEGRATION & FEATURES GATING
+    function triggerAdGate(propertyId) {
+        alert("Loading secure verification ad panel... Please wait 3 seconds.");
+        
+        setTimeout(() => {
+            session.watchedAdsCount++;
+            alert("Ad completed! Total watched: " + session.watchedAdsCount + ". Loading property asset details...");
+            openPropertyDetails(propertyId);
+        }, 3000);
+    }
+
+    function openPropertyDetails(id) {
+        alert("Displaying backend architecture specifications for asset metadata contract #" + id);
+    }
+     
         </script>
     </body>
     </html>
