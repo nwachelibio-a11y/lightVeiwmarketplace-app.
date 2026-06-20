@@ -43,15 +43,16 @@ def home():
             <div id="view-role" class="hidden zinc-card rounded-xl p-6 text-center shadow-2xl">
                 <h3 class="text-base font-bold mb-1">Select Account Type</h3>
                 <p class="text-xs text-zinc-400 mb-6">Are you searching for housing or listing a property?</p>
-                <div class="grid grid-cols-2 gap-3">
-                     onclick="systemRole('buyer')" class="p-4 bg-zinc-900 border border-zinc-800 rounded-xl">
-                        <span class="block text-xl mb-1">BUYER</span>
+                                <div class="grid grid-cols-2 gap-3">
+                    <button onclick="selectRole('buyer')" class="p-4 bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 rounded-xl transition flex flex-col items-center justify-center space-y-1">
+                        <span class="text-xs font-mono text-zinc-500 font-bold">[BUYER]</span>
                         <span class="text-xs font-bold text-white">I am a Buyer</span>
                     </button>
-                     onclick="sysyeRole('Seller')" class="p-4 bg-zinc-900 border border-zinc-800 rounded-xl">
-                        <span class="block text-xl mb-1">SELLER</span>
+                    <button onclick="selectRole('seller')" class="p-4 bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 rounded-xl transition flex flex-col items-center justify-center space-y-1">
+                        <span class="text-xs font-mono text-zinc-500 font-bold">[SELLER]</span>
                         <span class="text-xs font-bold text-white">I am a Seller</span>
                     </button>
+                </div>
                 </div>
             </div>
             <div id="view-buyer-location" class="hidden zinc-card rounded-xl p-6 shadow-2xl space-y-4">
