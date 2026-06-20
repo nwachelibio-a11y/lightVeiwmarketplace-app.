@@ -124,6 +124,60 @@ def home():
                 document.getElementById('view-login').classList.add('hidden');
                 document.getElementById('view-role').classList.remove('hidden');
             }
+                // LAYER 3: INTERACTION LOGIC ENGINE
+    function selectRole(chosenRole) {
+        session.role = chosenRole;
+        document.getElementById('view-role').classList.add('hidden');
+        
+        if (chosenRole === 'buyer') {
+            document.getElementById('view-buyer-location').classList.remove('hidden');
+        } else {
+            document.getElementById('view-seller-phone').classList.remove('hidden');
+        }
+    }
+
+    function processBuyerRegistration() {
+        const country = document.getElementById('buyer-country').value.trim().toLowerCase();
+        const state = document.getElementById('buyer-state').value.trim();
+        
+        if (!country || !state) {
+            alert("Please fill in your country and state.");
+            return;
+        }
+        
+        session.country = country;
+        session.state = state;
+        
+        // Rule: Buyers start with 0-9 sequence
+        session.registrationNumber = "0-" + nextBuyerSequence;
+        nextBuyerSequence++;
+        
+        alert("Buyer Assigned ID: " + session.registrationNumber);
+        // Next step will transition to inventory base display
+    }
+
+    function processSellerRegistration() {
+        const phone = document.getElementById('seller-phone').value.trim();
+        const country = document.getElementById('seller-country').value.trim().toLowerCase();
+        const state = document.getElementById('seller-state').value.trim();
+        
+        if (!phone || !country || !state) {
+            alert("All fields are required for seller verification.");
+            return;
+        }
+        
+        session.phone = phone;
+        session.country = country;
+        session.state = state;
+        
+        // Rule: Sellers start with 1 sequence
+        session.registrationNumber = "1-" + nextSellerSequence;
+        nextSellerSequence++;
+        
+        alert("Seller Verified ID: " + session.registrationNumber);
+        // Next step will transition to inventory listing management
+    }
+
         </script>
     </body>
     </html>
