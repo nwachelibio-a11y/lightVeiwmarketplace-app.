@@ -54,7 +54,27 @@ def home():
                     </button>
                 </div>
             </div>
+            <div id="view-buyer-location" class="hidden zinc-card rounded-xl p-6 shadow-2xl space-y-4">
+                <div>
+                    <h3 class="text-base font-bold mb-1">Your Location</h3>
+                    <p class="text-xs text-zinc-400">Specify your region to sync local asset currencies.</p>
+                </div>
+                <input type="text" id="buyer-country" placeholder="Country (e.g. Nigeria)" class="w-full bg-zinc-950 border border-zinc-800 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:border-orange-500 text-white">
+                <input type="text" id="buyer-state" placeholder="State / Province" class="w-full bg-zinc-950 border border-zinc-800 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:border-orange-500 text-white">
+                <button onclick="processBuyerRegistration()" class="w-full bg-white text-black text-xs font-bold py-3 rounded-lg tracking-wider">ENTER MARKETPLACE BASE</button>
+            </div>
 
+            <div id="view-seller-phone" class="hidden zinc-card rounded-xl p-6 shadow-2xl space-y-4">
+                <div>
+                    <h3 class="text-base font-bold mb-1">Seller Verification</h3>
+                    <p class="text-xs text-zinc-400">Sellers must authenticate their locale parameters before listing items.</p>
+                </div>
+                <input type="tel" id="seller-phone" placeholder="Phone Number (e.g. +234...)" class="w-full bg-zinc-950 border border-zinc-800 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:border-orange-500 text-white">
+                <input type="text" id="seller-country" placeholder="Country" class="w-full bg-zinc-950 border border-zinc-800 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:border-orange-500 text-white">
+                <input type="text" id="seller-state" placeholder="State / Province" class="w-full bg-zinc-950 border border-zinc-800 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:border-orange-500 text-white">
+                <button onclick="processSellerRegistration()" class="w-full bg-orange-600 text-white text-xs font-bold py-3 rounded-lg tracking-wider">VERIFY SELLER IDENTIFICATION</button>
+            </div>
+            
         </main>
 
         <footer class="text-center text-[10px] text-zinc-600 font-mono pt-3 border-t border-zinc-900">
