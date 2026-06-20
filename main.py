@@ -75,16 +75,31 @@ def home():
                 <input type="text" id="seller-state" placeholder="State / Province" class="w-full bg-zinc-950 border border-zinc-800 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:border-orange-500 text-white">
                 <button onclick="processSellerRegistration()" class="w-full bg-orange-600 text-white text-xs font-bold py-3 rounded-lg tracking-wider">VERIFY SELLER IDENTIFICATION</button>
             </div>
-                        <div id="view-marketplace" class="hidden space-y-6">
-                <div class="zinc-card rounded-xl p-4 shadow-xl space-y-3">
-                    <input type="text" id="market-search" oninput="executeInstantSearch()" placeholder="Search properties, areas, or cities..." class="w-full bg-zinc-950 border border-zinc-800 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:border-orange-500 text-white">
-                    <div class="flex items-center justify-between text-xs text-zinc-400 px-1">
-                        <span id="display-user-id" class="font-mono text-orange-400">ID: --</span>
-                        <span id="display-user-locale" class="tracking-wide">Locale: --</span>
+                        <div id="view-marketplace" class="hidden space-y-3">
+                    <div class="flex items-center justify-between border-b border-zinc-900 pb-2 text-[10px] font-mono tracking-wide">
+                        <div class="flex flex-col space-y-0.5">
+                            <span id="display-user-id" class="text-white"></span>
+                            <span id="display-user-locale" class="text-zinc-500"></span>
+                        </div>
+                        <button onclick="handleLogout()" class="text-orange-500 font-bold hover:text-orange-400">[LOGOUT ACCOUNT]</button>
                     </div>
-                   <div id="inventory-grid" class="grid grid-cols-1 gap-4">
+
+                    <input type="text" id="market-search" oninput="executeInstantSearch()" placeholder="Search by area or city..." class="w-full bg-zinc-950 border border-zinc-900 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-zinc-800 tracking-wide font-mono">
+
+                    <div id="seller-management-panel" class="hidden zinc-card rounded-xl p-4 border border-zinc-900 bg-zinc-950 space-y-3">
+                        <h4 class="text-xs font-bold text-white font-mono tracking-wide border-b border-zinc-900 pb-1">[POST NEW REAL ESTATE ASSET]</h4>
+                        <div class="space-y-2">
+                            <input type="text" id="listing-title" placeholder="Property Title" class="w-full bg-zinc-900 border border-zinc-800 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-zinc-700">
+                            <input type="text" id="listing-area" placeholder="Specific City / Area" class="w-full bg-zinc-900 border border-zinc-800 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-zinc-700">
+                            <input type="number" id="listing-price" placeholder="Base Value Price in USD ($)" class="w-full bg-zinc-900 border border-zinc-800 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-zinc-700">
+                            <button onclick="handleCreateListing()" class="w-full bg-white hover:bg-zinc-200 text-black text-xs font-bold py-2 rounded-lg transition tracking-wide font-mono">
+                                SUBMIT ASSET TO GLOBAL MARKETPLACE
+                            </button>
+                        </div>
                     </div>
-              </div>
+
+                    <div id="inventory-grid" class="grid grid-cols-1 gap-4"></div>
+</div>
 
         </main>
 
@@ -264,6 +279,57 @@ def home():
             openPropertyDetails(propertyId);
         }, 3000);
     }
+    // LOGOUT & SESSION EXTENSION SCRIPT
+    function handleLogout() {
+        localStorage.removeItem('savedUserEmail');
+        location.reload();
+    }
+
+    // LAYER 7: SELLER ASSET MANAGEMENT ENGINE (PERSISTENT CORES)
+    function handleCreateListing() {
+        const title = document.getElementById('listing-title').value.trim();
+        const area = document.getElementById('listing-area').value.trim();
+        const priceUSD = parseFloat(document.getElementById('listing-price').value);
+
+        if (!title || !area || isNaN(priceUSD) || priceUSD <= 0) {
+            alert("Please accurately complete all property specification fields.");
+            return;
+        }
+
+        const newAsset = {
+            id: Date.now(),
+            title: title,
+            area: area,
+            priceUSD: priceUSD,
+            sellerEmail: session.email
+        };
+
+        propertiesData.push(newAsset);
+        localStorage.setItem('globalPropertiesBackup', JSON.stringify(propertiesData));
+        
+        document.getElementById('listing-title').value = '';
+        document.getElementById('listing-area').value = '';
+        document.getElementById('listing-price').value = '';
+
+        alert("Asset successfully published to global index!");
+        renderInventory(propertiesData);
+    }
+
+    function handleDeleteListing(assetId) {
+        if (confirm("Are you certain you want to completely withdraw this property from the marketplace?")) {
+            propertiesData = propertiesData.filter(item => item.id !== assetId);
+            localStorage.setItem('globalPropertiesBackup', JSON.stringify(propertiesData));
+            renderInventory(propertiesData);
+        }
+    }
+
+    // AUTOMATIC SYSTEM DATA RESTORE ON LOAD
+    window.addEventListener('DOMContentLoaded', () => {
+        const storedInventory = localStorage.getItem('globalPropertiesBackup');
+        if (storedInventory) {
+            propertiesData = JSON.parse(storedInventory);
+        }
+    });
 
     function openPropertyDetails(id) {
         alert("Displaying backend architecture specifications for asset metadata contract #" + id);
@@ -272,7 +338,7 @@ def home():
         </script>
     </body>
     </html>
-    """
+    
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 10000))
