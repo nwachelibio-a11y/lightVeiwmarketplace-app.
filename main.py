@@ -74,7 +74,17 @@ def home():
                 <input type="text" id="seller-state" placeholder="State / Province" class="w-full bg-zinc-950 border border-zinc-800 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:border-orange-500 text-white">
                 <button onclick="processSellerRegistration()" class="w-full bg-orange-600 text-white text-xs font-bold py-3 rounded-lg tracking-wider">VERIFY SELLER IDENTIFICATION</button>
             </div>
-            
+                        <div id="view-marketplace" class="hidden space-y-6">
+                <div class="zinc-card rounded-xl p-4 shadow-xl space-y-3">
+                    <input type="text" id="market-search" oninput="executeInstantSearch()" placeholder="Search properties, areas, or cities..." class="w-full bg-zinc-950 border border-zinc-800 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:border-orange-500 text-white">
+                    <div class="flex items-center justify-between text-xs text-zinc-400 px-1">
+                        <span id="display-user-id" class="font-mono text-orange-400">ID: --</span>
+                        <span id="display-user-locale" class="tracking-wide">Locale: --</span>
+                    </div>
+                   <div id="inventory-grid" class="grid grid-cols-1 gap-4">
+                    </div>
+              </div>
+
         </main>
 
         <footer class="text-center text-[10px] text-zinc-600 font-mono pt-3 border-t border-zinc-900">
