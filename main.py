@@ -164,9 +164,92 @@ def home():
         
         alert("Buyer Assigned ID: " + session.registrationNumber);
         // Next step will transition to inventory base display
+        document.getElementById('view-buyer-location').classList.add('hidden');
+document.getElementById('view-marketplace').classList.remove('hidden');
+renderInventory(propertiesData);
+
+    }
+        
+    }
+    
+    function processSellerRegistration() {
+    const phone = document.getElementById('seller-phone').value.trim();
+    const country = document.getElementById('seller-country').value.trim().toLowerCase();
+    const state = document.getElementById('seller-state').value.trim();
+    
+    if (!phone || !country || !state) {
+        alert("All fields are required for seller verification.");
+        return;
+    }
+    
+    session.phone = phone;
+    session.country = country;
+    session.state = state;
+    
+    session.registrationNumber = "1-" + nextSellerSequence;
+    nextSellerSequence++;
+    
+    alert("Seller Verified ID: " + session.registrationNumber);
+    
+    document.getElementById('view-seller-phone').classList.add('hidden');
+    document.getElementById('view-marketplace').classList.remove('hidden');
+    renderInventory(propertiesData);
+}
+
+        // LAYER 5: INVENTORY RENDER ENGINE (DYNAMIC DOM GENERATOR)
+    function renderInventory(items) {
+        const grid = document.getElementById('inventory-grid');
+        grid.innerHTML = ''; // Wipe shelf clean before rebuilding
+        
+        // Setup User Badge Info inside marketplace banner
+        document.getElementById('display-user-id').innerText = "ID: " + session.registrationNumber;
+        document.getElementById('display-user-locale').innerText = "LOCALE: " + session.state + ", " + session.country.toUpperCase();
+
+        if (items.length === 0) {
+            grid.innerHTML = `<p class="text-zinc-500 text-xs text-center py-8">No matching real estate listings found.</p>`;
+            return;
+        }
+
+        // Determine currency symbols and rates dynamically
+        let currency = "USD $";
+        let rate = 1;
+        const userCountry = session.country.toLowerCase();
+
+        if (currencyRates[userCountry]) {
+            currency = currencyRates[userCountry].symbol;
+            rate = currencyRates[userCountry].rate;
+        }
+
+        // Loop through properties and generate HTML cards
+        items.forEach(item => {
+            // Default base calculation ($100k - $250k placeholder equivalents scaled to local currency rate)
+            const basePriceUSD = item.id === 101 ? 150000 : item.id === 102 ? 220000 : item.id === 103 ? 95000 : 180000;
+            const convertedPrice = (basePriceUSD * rate).toLocaleString();
+
+            const cardHtml = `
+                <div class="zinc-card rounded-xl p-4 border border-zinc-900 shadow-lg space-y-3">
+                    <div class="h-32 bg-zinc-950 rounded-lg border border-zinc-900 flex items-center justify-center text-zinc-700 text-xs font-mono">
+                        IMAGE PLACEHOLDER #${item.id}
+                    </div>
+                    <div class="space-y-1">
+                        <div class="flex justify-between items-start">
+                            <h4 class="text-sm font-bold text-white tracking-wide">${item.title}</h4>
+                            <span class="text-xs font-mono text-orange-400 font-bold">${currency} ${convertedPrice}</span>
+                        </div>
+                        <p class="text-xs text-zinc-400">${item.area}</p>
+                    </div>
+                    <button onclick="openPropertyDetails(${item.id})" class="w-full bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 text-white text-[11px] font-bold py-2 rounded-lg transition">
+                        VIEW ASSET SPECIFICATIONS
+                    </button>
+                </div>
+            `;
+            grid.insertAdjacentHTML('beforeend', cardHtml);
+        });
     }
 
-    function processSellerRegistration() {
+    // Connect registration finishes to this new view layout
+    // Go modify your processBuyerRegistration and processSellerRegistration to run these triggers:
+
         const phone = document.getElementById('seller-phone').value.trim();
         const country = document.getElementById('seller-country').value.trim().toLowerCase();
         const state = document.getElementById('seller-state').value.trim();
