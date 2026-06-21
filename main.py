@@ -15,20 +15,26 @@ def home():
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>LightView Real Estate Hub</title>
         <script src="https://cdn.tailwindcss.com"></script>
+            <script type="text/javascript" src="https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+            
         <style>
             body { background-color: #000000; color: #ffffff; font-family: sans-serif; }
             .zinc-card { background-color: #0b0b0c; border: 1px solid #1f1f22; }
         </style>
     </head>
     <body class="min-h-screen flex flex-col p-4 max-w-md mx-auto select-none justify-between">
-
-        <header class="border-b border-zinc-900 pb-3 flex justify-between items-center">
-            <div class="flex items-center gap-2">
-                <span class="text-orange-500 font-black text-xl tracking-tighter">LIGHTVIEW</span>
-                <span class="text-zinc-500 text-[10px] font-mono">MARKETPLACE</span>
-            </div>
-            <span class="text-[10px] bg-emerald-950 text-emerald-400 px-2 py-0.5 rounded border border-emerald-900 font-mono">LIVE</span>
-        </header>
+    
+                                <header class="border-b border-zinc-900 pb-3 flex justify-between items-center">
+                <div class="flex items-center gap-2">
+                    <span class="text-orange-500 font-black text-xl tracking-tighter">LIGHTVIEW</span>
+                    <span class="text-zinc-500 text-[10px] font-mono">MARKETPLACE</span>
+                </div>
+                
+                <div class="flex items-center gap-2">
+                    <div id="global-translate-element"></div>
+                    <span class="text-[10px] bg-emerald-950 text-emerald-400 px-2 py-0.5 rounded border border-emerald-900 font-mono">LIVE</span>
+                </div>
+            </header>
 
         <main class="flex-1 flex flex-col justify-center my-6">
             
@@ -215,7 +221,15 @@ def home():
         localStorage.removeItem('savedUserProfile');
         location.reload();
     }
-
+    // INITIALIZE GLOBAL TRANSLATION HUB
+    window.googleTranslateElementInit = function() {
+        new google.translate.TranslateElement({
+            pageLanguage: 'en',
+            layout: google.translate.TranslateElement.InlineLayout.SIMPLE,
+            autoDisplay: false
+        }, 'global-translate-element');
+    };
+    
     // SYSTEM INTERCEPT ON APP BOOTUP
     window.addEventListener('DOMContentLoaded', () => {
         // Restore inventory data safely
