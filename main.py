@@ -116,7 +116,13 @@ def home():
                     <input type="text" id="market-search" oninput="executeInstantSearch()" placeholder="Search by area or city..." class="w-full bg-zinc-950 border border-zinc-900 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-zinc-800 tracking-wide font-mono">
 
                     <div id="seller-management-panel" class="hidden zinc-card rounded-xl p-4 border border-zinc-900 bg-zinc-950 space-y-3">
-                        <h4 class="text-xs font-bold text-white font-mono tracking-wide border-b border-zinc-900 pb-1">[POST NEW REAL ESTATE ASSET]</h4>
+                        <h4 class="text-xs font-bold text-white font-mono tracking-wide border-b border-zinc-900 pb-1">[POST NEW REAL ESTATE ASSET]</h4> 
+                            <div style="margin-top: 12px; margin-bottom: 12px; padding: 10px; background-color: #09090b; border: 1px solid #18181b; border-radius: 8px; font-family: monospace;">
+        <p style="margin: 0; font-size: 11px; color: #a1a1aa;">ADS ACCOUNT BALANCE</p>
+        <p style="margin: 4px 0 0 0; font-size: 14px; color: #ffffff; font-weight: bold;">Boost Coins: <span id="dash-coins">0</span></p>
+        <p style="margin: 2px 0 0 0; font-size: 10px; color: #f97316;">Progress to next coin: <span id="dash-seconds">0</span>/100s</p>
+    </div>
+    
                         <div class="space-y-2">
                             <input type="text" id="listing-title" placeholder="Property Title" class="w-full bg-zinc-900 border border-zinc-800 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-zinc-700">
                             <input type="text" id="listing-area" placeholder="Specific City / Area" class="w-full bg-zinc-900 border border-zinc-800 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-zinc-700">
@@ -139,14 +145,17 @@ def home():
         <script>
             // LAYER 1: GLOBAL DATA REGISTRY
     let session = {
-        email: "",
-        role: "",
-        phone: "",
-        country: "",
-        state: "",
-        registrationNumber: "",
-        watchedAdsCount: 0
-    };
+    email: "",
+    role: "",
+    phone: "",
+    country: "",
+    state: "",
+    registrationNumber: "",
+    watchedAdsCount: 0,
+    boostCoins: 0,
+    watchedAdSeconds: 0
+};
+
 
     let nextBuyerSequence = 1;
     let nextSellerSequence = 1;
@@ -338,7 +347,18 @@ def home():
 
         items.forEach(item => {
             const convertedPrice = (item.priceUSD * rate).toLocaleString();
-
+        var promoteSectionHtml = '';
+        if (session.role === 'seller' && item.sellerEmail === session.email) {
+            var currentBoost = item.boostPoints || 0;
+            promoteSectionHtml = '<div style="margin-top: 8px; padding-top: 8px; border-top: 1px solid #27272a; display: flex; justify-content: space-between; align-items: center;">' +
+                                 '<span style="font-size: 10px; color: #a1a1aa;">Boosts: +' + currentBoost + '</span>' +
+                                 '<div style="display: flex; gap: 4px;">' +
+                                     '<button onclick="watchAdForBoost(\'' + item.id + '\')" style="background-color: #f97316; color: #000000; font-size: 10px; font-weight: bold; padding: 4px 8px; border-radius: 4px; border: none; cursor: pointer;">Watch Ad</button>' +
+                                     '<button onclick="applyBoostCoin(\'' + item.id + '\')" style="background-color: #22c55e; color: #000000; font-size: 10px; font-weight: bold; padding: 4px 8px; border-radius: 4px; border: none; cursor: pointer;">Spend Coin</button>' +
+                                 '</div>' +
+                                 '</div>';
+        }
+        
             const cardHtml = `
                 <div class="zinc-card rounded-xl p-4 border border-zinc-900 shadow-lg space-y-3">
                     <div class="h-32 bg-zinc-950 rounded-lg border border-zinc-900 flex items-center justify-center text-zinc-700 text-xs font-mono">
@@ -436,6 +456,54 @@ def home():
     function openPropertyDetails(id) {
         alert("Displaying backend architecture specifications for asset metadata contract #" + id);
     }
+function watchAdForBoost(assetId) {
+    alert("Loading Premium Promotional Ad Room... Please sit tight.");
+    
+    setTimeout(function() {
+        session.watchedAdsCount = (session.watchedAdsCount || 0) + 1;
+        session.watchedAdSeconds = (session.watchedAdSeconds || 0) + 10;
+        
+        alert("Ad complete! (+10 seconds added). Progress: " + session.watchedAdSeconds + "/100s toward a Boost Coin.");
+        
+        if (session.watchedAdSeconds >= 100) {
+            session.boostCoins = (session.boostCoins || 0) + 1;
+            session.watchedAdSeconds -= 100;
+            alert("Success! You earned 1 Boost Coin! Total available: " + session.boostCoins);
+        }
+        
+        // Refresh the screen cleanly to update UI states
+        if (typeof renderInventory === 'function' && typeof assets !== 'undefined') {
+            renderInventory(assets);
+        }
+    }, 1500);
+}
+
+function applyBoostCoin(assetId) {
+    if (!session.boostCoins || session.boostCoins < 1) {
+        alert("Denied: You do not have enough Boost Coins. Watch more promo ads to unlock items.");
+        return;
+    }
+    
+    if (typeof assets !== 'undefined') {
+        var assetIndex = assets.findIndex(function(item) { return item.id == assetId; });
+        if (assetIndex !== -1) {
+            session.boostCoins -= 1;
+            assets[assetIndex].boostPoints = (assets[assetIndex].boostPoints || 0) + 1;
+            
+            localStorage.setItem('globalPropertiesBackup', JSON.stringify(assets));
+            alert("Success! Listing boosted by +1 ranking points.");
+            
+            // Sort listings so highest boosted items rise to the top
+            assets.sort(function(a, b) {
+                return (b.boostPoints || 0) - (a.boostPoints || 0);
+            });
+            
+            renderInventory(assets);
+        } else {
+            alert("Error finding asset specifications.");
+        }
+    }
+}
 
         </script>
     </body>
