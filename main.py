@@ -437,6 +437,102 @@ def home():
         alert("Displaying backend architecture specifications for asset metadata contract #" + id);
     }
      
+// LANDLORD REWARDED AD LOOP
+function watchAdForBoost(propertyId) {
+    alert("Loading Premium Promotional Ad Room... Please sit tight.");
+    
+    setTimeout(function() {
+        if (!session.boostCoins) { session.boostCoins = 0; }
+        if (!session.watchedAdSeconds) { session.watchedAdSeconds = 0; }
+        
+        session.watchedAdsCount++;
+        session.watchedAdSeconds += 10;
+        
+        alert("Ad complete! (+10 seconds added). Progress: " + session.watchedAdSeconds + "/100s toward a Boost Coin.");
+        
+        if (session.watchedAdSeconds >= 100) {
+            session.boostCoins += 1;
+            session.watchedAdSeconds -= 100;
+            alert("Success! You earned 1 Boost Coin! Total available: " + session.boostCoins);
+            
+            if (confirm("Would you like to spend 1 Boost Coin right now to vault this listing to the top of the feed?")) {
+                applyBoostCoin(propertyId);
+            }
+        }
+    }, 1500);
+}
+
+function applyBoostCoin(propertyId) {
+    if (!session.boostCoins || session.boostCoins < 1) {
+        alert("Denied: You do not have enough Boost Coins. Watch more promo ads to unlock items.");
+        return;
+    }
+    
+    var propertyIndex = propertiesData.findIndex(function(item) { return item.id == propertyId; });
+    if (propertyIndex !== -1) {
+        session.boostCoins -= 1;
+        propertiesData[propertyIndex].boostPoints = (propertiesData[propertyIndex].boostPoints || 0) + 1;
+        
+        localStorage.setItem('globalPropertiesBackup', JSON.stringify(propertiesData));
+        alert("Success! Listing boosted by +1 ranking points.");
+        
+        // Force sort the listings so the highest boost points float to the top
+        propertiesData.sort(function(a, b) {
+            return (b.boostPoints || 0) - (a.boostPoints || 0);
+        });
+        
+        renderInventory(propertiesData);
+    } else {
+        alert("Error finding asset specifications.");
+    }
+}
+
+// AUTOMATIC PROMOTION BUTTON INJECTOR
+// This small background function checks if you are the owner, and automatically appends the promote button layout without messing up your existing layout.
+setInterval(function() {
+    if (session.role === 'seller') {
+        propertiesData.forEach(function(item) {
+            if (item.sellerEmail === session.email) {
+                var cards = document.getElementsByClassName('zinc-card');
+                for (var i = 0; i < cards.length; i++) {
+                    if (cards[i].innerHTML.indexOf(item.id) !== -1 && cards[i].innerHTML.indexOf('watchAdForBoost') === -1) {
+                        var currentBoost = item.boostPoints || 0;
+                        var btnHtml = '<div style="margin-top: 8px; padding-top: 8px; border-top: 1px solid #27272a; display: flex; justify-content: space-between; align-items: center;">' +
+                                      '<span style="font-size: 10px; color: #a1a1aa;">Boosts: +' + currentBoost + '</span>' +
+                                      '<button onclick="watchAdForBoost(\'' + item.id + '\')" style="background-color: #f97316; color: #000000; font-size: 10px; font-weight: bold; padding: 4px 8px; border-radius: 4px; border: none; cursor: pointer;">Promote Listing</button>' +
+                                      '</div>';
+                        cards[i].insertAdjacentHTML('beforeend', btnHtml);
+                    }
+                }
+            }
+        });
+    }
+}, 2000);
+// LANDLORD REVENUE DASHBOARD INJECTOR
+// This function adds a small, clean text counter right inside the user account info section to display their current Boost Coin balance.
+setInterval(function() {
+    var profileSection = document.getElementById('user-profile-section') || document.querySelector('.zinc-card h3')?.parentElement;
+    if (profileSection && session.role === 'seller') {
+        var currentCoins = session.boostCoins || 0;
+        var currentSeconds = session.watchedAdSeconds || 0;
+        
+        var dashboardId = 'lightview-boost-dashboard';
+        var existingDashboard = document.getElementById(dashboardId);
+        
+        var dashboardHtml = '<div id="' + dashboardId + '" style="margin-top: 12px; padding: 10px; background-color: #18181b; border: 1px solid #27272a; border-radius: 8px; font-family: monospace;">' +
+                            '<p style="margin: 0; font-size: 11px; color: #a1a1aa;">LIGHTVIEW ADS ACCOUNT:</p>' +
+                            '<p style="margin: 4px 0 0 0; font-size: 13px; color: #ffffff; font-weight: bold;">Boost Coins: ' + currentCoins + '</p>' +
+                            '<p style="margin: 2px 0 0 0; font-size: 10px; color: #f97316;">Next Coin Progress: ' + currentSeconds + '/100s</p>' +
+                            '</div>';
+                            
+        if (!existingDashboard) {
+            profileSection.insertAdjacentHTML('beforeend', dashboardHtml);
+        } else {
+            existingDashboard.outerHTML = dashboardHtml;
+        }
+    }
+}, 2000);
+
         </script>
     </body>
     </html>
