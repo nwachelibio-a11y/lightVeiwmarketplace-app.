@@ -413,9 +413,13 @@ function handleChatRouting(sellerId) {
                         </div>
                         <p class="text-xs text-zinc-400">${item.area}</p>
                     </div>
-                    <button onclick="triggerAdGate(${item.id})" class="w-full bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 text-white text-[11px] font-bold py-2 rounded-lg transition">
-                        VIEW ASSET SPECIFICATIONS
-                    </button>
+                    <button onclick="openPropertyDetails('${item.id}')" class="w-full my-1 bg-zinc-800 hover:bg-zinc-700 text-white font-bold py-2 px-4 rounded border border-zinc-700 text-xs font-mono tracking-wide transition">
+     VIEW SPECIFICATIONS
+</button>
+<button onclick="openSellerChat('${item.sellerEmail || item.id}')" class="w-full my-1 bg-orange-500 hover:bg-orange-600 text-black font-bold py-2 px-4 rounded text-xs font-mono tracking-wide transition">
+     CHAT WITH SELLER
+</button>
+
                 </div>
             `;
             grid.insertAdjacentHTML('beforeend', cardHtml);
@@ -496,8 +500,17 @@ function handleChatRouting(sellerId) {
     });
 
     function openPropertyDetails(id) {
-        alert("Displaying backend architecture specifications for asset metadata contract #" + id);
+    // Finds the exact house listing from your inventory data array
+    let selectedItem = propertiesData.find(item => item.id == id);
+    
+    if (selectedItem) {
+        // Displays the real marketplace details smoothly
+        alert(` PROPERTY SPECIFICATIONS \n\nTitle: ${selectedItem.title}\nArea/City: ${selectedItem.area}\nPrice: $${selectedItem.priceUSD.toLocaleString()}\n\nClick 'Chat with Seller' if you want to contact the owner!`);
+    } else {
+        alert("Specifications for asset metadata contract # " + id);
     }
+}
+
 function watchAdForBoost(assetId) {
     alert("Loading Premium Promotional Ad Room... Please sit tight.");
     
