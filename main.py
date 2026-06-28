@@ -143,7 +143,53 @@ def home():
         </footer>
 
         <script>
-            // LAYER 1: GLOBAL DATA REGISTRY
+// STEP 1: NEW PICTURE AD LOGIC FOR CHAT UNLOCK
+function openSellerChat(sellerId) {
+    // 1. Create the dark pop-up overlay window
+    let adOverlay = document.createElement("div");
+    adOverlay.id = "picture-ad-overlay";
+    adOverlay.style = "position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.95); z-index:9999; display:flex; flex-direction:column; justify-content:center; align-items:center; color:white; font-family:sans-serif;";
+    
+    // 2. Insert the picture box and the 3-second countdown text
+    adOverlay.innerHTML = `
+        <div style="background:#18181b; padding:24px; border-radius:16px; text-align:center; border:1px solid #27272a; max-width:90%; width:340px;">
+            <p style="margin-bottom:12px; color:#a1a1aa; font-size:13px; font-family:monospace;">ADVERTISEMENT</p>
+            
+            <div style="width:300px; height:250px; background:#27272a; margin:15px auto; display:flex; justify-content:center; align-items:center; border-radius:8px; border:1px dashed #52525b;">
+                <span style="color:#a1a1aa; font-size:14px; font-family:monospace;">[ 300x250 Sponsor Banner ]</span>
+            </div>
+            
+            <p id="ad-countdown" style="font-weight:bold; color:#f97316; font-size:16px; font-family:monospace;">Unlocking chat in 3 seconds...</p>
+        </div>
+    `;
+    
+    document.body.appendChild(adOverlay);
+    
+    let secondsLeft = 3;
+    
+    // 3. Start the countdown timer
+    let adTimer = setInterval(() => {
+        secondsLeft -= 1;
+        document.getElementById("ad-countdown").innerText = `Unlocking chat in ${secondsLeft} seconds...`;
+        
+        if (secondsLeft <= 0) {
+            clearInterval(adTimer);
+            document.body.removeChild(adOverlay); // Close the ad automatically
+            
+            // 4. Trigger the chat hand-off routing
+            handleChatRouting(sellerId); 
+        }
+    }, 1000);
+}
+
+// STEP 3: REDIRECT PASSTHROUGH TO SELLER MAIL
+function handleChatRouting(sellerId) {
+    // This instantly opens the user's mobile mail client pre-addressed to the owner
+    window.location.href = "mailto:" + sellerId + "?subject=Inquiry about your Property Marketplace Listing";
+}
+
+
+             // LAYER 1: GLOBAL DATA REGISTRY
     let session = {
     email: "",
     role: "",
@@ -371,9 +417,14 @@ def home():
                         </div>
                         <p class="text-xs text-zinc-400">${item.area}</p>
                     </div>
-                    <button onclick="triggerAdGate(${item.id})" class="w-full bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 text-white text-[11px] font-bold py-2 rounded-lg transition">
-                        VIEW ASSET SPECIFICATIONS
-                    </button>
+                    <button onclick="openPropertyDetails('${item.id}')" class="w-full my-1 bg-zinc-800 hover:bg-zinc-700 text-white font-bold py-2 px-4 rounded border border-zinc-700 text-xs font-mono tracking-wide transition">
+     VIEW SPECIFICATIONS
+</button>
+
+<button onclick="openSellerChat('${item.sellerEmail || item.id}')" class="w-full my-1 bg-orange-500 hover:bg-orange-600 text-black font-bold py-2 px-4 rounded text-xs font-mono tracking-wide transition">
+     CHAT WITH SELLER
+</button>
+
                 </div>
             `;
             grid.insertAdjacentHTML('beforeend', cardHtml);
@@ -454,8 +505,17 @@ def home():
     });
 
     function openPropertyDetails(id) {
-        alert("Displaying backend architecture specifications for asset metadata contract #" + id);
+    // 1. Find the exact house listing that matches the clicked ID
+    let selectedItem = propertiesData.find(item => item.id == id);
+    
+    if (selectedItem) {
+        // 2. Alert the user with the beautiful specs of the house cleanly
+        alert(` PROPERTY DETAILS \n\nTitle: ${selectedItem.title}\nArea/City: ${selectedItem.area}\nPrice: $${selectedItem.priceUSD.toLocaleString()}\n\nClick the Orange 'Chat with Seller' button if you want to contact the owner!`);
+    } else {
+        alert("Error: Property specifications could not be loaded.");
     }
+}
+
 function watchAdForBoost(assetId) {
     alert("Loading Premium Promotional Ad Room... Please sit tight.");
     
