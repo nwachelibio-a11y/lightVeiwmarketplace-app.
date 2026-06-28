@@ -251,8 +251,9 @@ function handleGmailLogin() {
     const emailInput = document.getElementById('login-mail').value;
     const pinInput = document.getElementById('login-pasw').value.trim();
 
+    // Basic validation
     if (!emailInput || !emailInput.includes('@gmail.com')) {
-        alert("Provide a valid Gmail address.");
+        alert("Please provide a valid Gmail address.");
         return;
     }
     
@@ -261,12 +262,11 @@ function handleGmailLogin() {
         return;
     }
 
-    session.email = emailInput;
-    session.pin = pinInput;
-
+    // Success: Hide the login view and show the next view
     document.getElementById('view-login').classList.add('hidden');
     document.getElementById('view-role').classList.remove('hidden');
 }
+
 
 
     function handleQuickPinUnlock() {
