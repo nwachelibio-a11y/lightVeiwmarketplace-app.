@@ -121,26 +121,50 @@ def home():
         <p style="margin: 0; font-size: 11px; color: #a1a1aa;">ADS ACCOUNT BALANCE</p>
         <p style="margin: 4px 0 0 0; font-size: 14px; color: #ffffff; font-weight: bold;">Boost Coins: <span id="dash-coins">0</span></p>
         <p style="margin: 2px 0 0 0; font-size: 10px; color: #f97316;">Progress to next coin: <span id="dash-seconds">0</span>/100s</p>
-    </div>
+        </div>
     
-                        <div class="space-y-2">
-                            <input type="text" id="listing-title" placeholder="Property Title" class="w-full bg-zinc-900 border border-zinc-800 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-zinc-700">
-                            <input type="text" id="listing-area" placeholder="Specific City / Area" class="w-full bg-zinc-900 border border-zinc-800 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-zinc-700">
-                            <input type="number" id="listing-price" placeholder="Base Value Price in USD ($)" class="w-full bg-zinc-900 border border-zinc-800 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-zinc-700">
-                            <button onclick="handleCreateListing()" class="w-full bg-white hover:bg-zinc-200 text-black text-xs font-bold py-2 rounded-lg transition tracking-wide font-mono">
-                                SUBMIT ASSET TO GLOBAL MARKETPLACE
-                            </button>
-                        </div>
-                    </div>
+    <div id="inventory-grid" class="grid grid-cols-1 gap-4"></div>
+</main>
 
-                    <div id="inventory-grid" class="grid grid-cols-1 gap-4"></div>
-</div>
+<footer class="text-center text-zinc-600 font-mono text-xs p-3 border-t border-zinc-900">
+    Lightview Housing Hub @ 2026
+</footer>
 
-        </main>
+<script>
+// STEP 1 & 3: AD LOGIC & CHAT ROUTING
+function openSellerChat(sellerId) {
+    let adOverlay = document.createElement("div");
+    adOverlay.id = "picture-ad-overlay";
+    adOverlay.style = "position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.95); z-index:9999; display:flex; flex-direction:column; justify-content:center; align-items:center; color:white; font-family:sans-serif;";
+    
+    adOverlay.innerHTML = `
+        <div style="background:#18181b; padding:24px; border-radius:16px; text-align:center; border:1px solid #27272a; max-width:90%; width:340px;">
+            <p style="margin-bottom:12px; color:#a1a1aa; font-size:13px; font-family:monospace;">ADVERTISEMENT</p>
+            <div style="width:300px; height:250px; background:#27272a; margin:15px auto; display:flex; justify-content:center; align-items:center; border-radius:8px; border:1px dashed #52525b;">
+                <span style="color:#a1a1aa; font-size:14px; font-family:monospace;">[ 300x250 Sponsor Banner ]</span>
+            </div>
+            <p id="ad-countdown" style="font-weight:bold; color:#f97316; font-size:16px; font-family:monospace;">Unlocking chat in 3 seconds...</p>
+        </div>
+    `;
+    
+    document.body.appendChild(adOverlay);
+    let secondsLeft = 3;
+    
+    let adTimer = setInterval(() => {
+        secondsLeft -= 1;
+        document.getElementById("ad-countdown").innerText = `Unlocking chat in ${secondsLeft} seconds...`;
+        
+        if (secondsLeft <= 0) {
+            clearInterval(adTimer);
+            document.body.removeChild(adOverlay);
+            handleChatRouting(sellerId);
+        }
+    }, 1000);
+}
 
-        <footer class="text-center text-[10px] text-zinc-600 font-mono pt-3 border-t border-zinc-900">
-            LightView Housing Hub © 2026
-        </footer>
+function handleChatRouting(sellerId) {
+    window.location.href = "mailto:" + sellerId + "?subject=Inquiry about your Property Marketplace Listing";
+}
 
         <script>
         // STEP 1 & 3: AD LOGIC & CHAT ROUTING
