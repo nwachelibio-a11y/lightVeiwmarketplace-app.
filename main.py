@@ -252,11 +252,13 @@ function handleChatRouting(sellerId) {
     const pinInput = document.getElementById('login-pasw').value.trim();
 
         if (!emailInput || !emailInput.includes('@gmail.com')) {
-            alert("Provide a valid Gmail address.");
+             if (emailInput === "") { alert("Please enter email"); return; }
             return;
         }
         if (pinInput.length !== 4 || isNaN(pinInput)) {
-            alert("Security PIN must be exactly 4 numbers.");
+             if (pinInput === "") { alert("Please enter PIN"); 
+             return; }
+
             return;
         }
         
