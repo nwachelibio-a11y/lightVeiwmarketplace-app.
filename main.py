@@ -249,8 +249,8 @@ function handleChatRouting(sellerId) {
 
     // LAYER 2: CORE AUTHENTICATION TRIGGERS & SESSION PERSISTENCE (PIN PROTECTED)
     function handleGmailLogin() {
-        const emailInput = document.getElementById('login-email').value.trim();
-        const pinInput = document.getElementById('login-pin').value.trim();
+            const emailInput = document.getElementById('login-mail').value;
+    const pinInput = document.getElementById('login-pasw').value.trim();
 
         if (!emailInput || !emailInput.includes('@gmail.com')) {
             alert("Provide a valid Gmail address.");
