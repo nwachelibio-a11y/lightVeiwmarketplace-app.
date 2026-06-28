@@ -247,27 +247,27 @@ function handleChatRouting(sellerId) {
     };
 
     // LAYER 2: CORE AUTHENTICATION TRIGGERS & SESSION PERSISTENCE (PIN PROTECTED)
-    function handleGmailLogin() {
-            const emailInput = document.getElementById('login-mail').value;
+function handleGmailLogin() {
+    const emailInput = document.getElementById('login-mail').value;
     const pinInput = document.getElementById('login-pasw').value.trim();
 
-        if (!emailInput || !emailInput.includes('@gmail.com')) {
-             if (emailInput === "") { alert("Please enter email"); return; }
-            return;
-        }
-        if (pinInput.length !== 4 || isNaN(pinInput)) {
-             if (pinInput === "") { alert("Please enter PIN"); 
-             return; }
-
-            return;
-        }
-        
-        session.email = emailInput;
-        session.pin = pinInput; // Lock password into temporary memory
-        
-        document.getElementById('view-login').classList.add('hidden');
-        document.getElementById('view-role').classList.remove('hidden');
+    if (!emailInput || !emailInput.includes('@gmail.com')) {
+        alert("Provide a valid Gmail address.");
+        return;
     }
+    
+    if (pinInput.length !== 4 || isNaN(pinInput)) {
+        alert("Security PIN must be exactly 4 numbers.");
+        return;
+    }
+
+    session.email = emailInput;
+    session.pin = pinInput;
+
+    document.getElementById('view-login').classList.add('hidden');
+    document.getElementById('view-role').classList.remove('hidden');
+}
+
 
     function handleQuickPinUnlock() {
         const inputPin = document.getElementById('returning-pin').value.trim();
