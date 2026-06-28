@@ -47,15 +47,13 @@ def home():
                     <div id="email-input-group" class="space-y-3">
                         <input type="text" id="login-email" placeholder="Enter Gmail Address (e.g. name@gmail.com)" class="w-full bg-zinc-950 border border-zinc-900 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-zinc-700 tracking-wide font-mono">
                         
-                        <div id="setup-pin-group" class="space-y-1 text-left">
-                        <input type="email" id="login-mail" placeholder="ENTER YOUR EMAIL" class="w-full ...">
-                            <input type="password" id="login-pin" maxlength="4" placeholder="••••" class="w-full bg-zinc-950 border border-zinc-900 rounded-lg px-3 py-2 text-center text-sm font-bold text-white focus:outline-none focus:border-zinc-700 tracking-widest font-mono">
-                        </div>
+                        <input type="email" id="login-mail" placeholder="ENTER YOUR EMAIL" class="w-full p-3 bg-zinc-900 border border-zinc-700 text-white rounded">
+<input type="password" id="login-pasw" maxlength="4" placeholder="ENTER 4-DIGIT PIN" class="w-full p-3 bg-zinc-900 border border-zinc-700 text-white rounded">
 
-                        <button onclick="handleGmailLogin()" class="w-full bg-orange-600 hover:bg-orange-700 text-white text-xs font-bold py-2.5 rounded-lg transition tracking-wide font-mono">
-                              <input type="password" id="login-pasw" placeholder="PASSWORD" class="w-full ...">
+<button onclick="handleGmailLogin()" class="w-full p-3 mt-4 bg-orange-600 text-white font-bold rounded">
+    INITIALIZE SECURE ACCESS
+</button>
 
-                        </button>
                     </div>
 
                     <div id="quick-pin-group" class="hidden space-y-3 p-2 text-center">
