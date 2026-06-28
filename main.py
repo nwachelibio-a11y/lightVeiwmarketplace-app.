@@ -8,587 +8,768 @@ app = FastAPI()
 @app.get("/", response_class=HTMLResponse)
 def home():
     return """
-    <!DOCTYPE html>
-    <html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>LightView Real Estate Hub</title>
-        <script src="https://cdn.tailwindcss.com"></script>
-            <script type="text/javascript" src="https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
-            
-        <style>
-            body { background-color: #000000; color: #ffffff; font-family: sans-serif; }
-            .zinc-card { background-color: #0b0b0c; border: 1px solid #1f1f22; }
-        </style>
-    </head>
-    <body class="min-h-screen flex flex-col p-4 max-w-md mx-auto select-none justify-between">
+            <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lightview Real Estate Hub</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script type="text/javascript" src="https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+    <style>
+        body { background-color: #000000; color: #ffffff; font-family: sans-serif; }
+        .zinc-card { background-color: #0b0b0c; border: 1px solid #18181b; }
+        ::-webkit-scrollbar { width: 5px; }
+        ::-webkit-scrollbar-track { background: #000000; }
+        ::-webkit-scrollbar-thumb { background: #27272a; border-radius: 10px; }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col p-4 max-w-md mx-auto select-none justify-between">
     
-                                <header class="border-b border-zinc-900 pb-3 flex justify-between items-center">
-                <div class="flex items-center gap-2">
-                    <span class="text-orange-500 font-black text-xl tracking-tighter">LIGHTVIEW</span>
-                    <span class="text-zinc-500 text-[10px] font-mono">MARKETPLACE</span>
-                </div>
-                
-                <div class="flex items-center gap-2">
-                    <div id="global-translate-element"></div>
-                    <span class="text-[10px] bg-emerald-950 text-emerald-400 px-2 py-0.5 rounded border border-emerald-900 font-mono">LIVE</span>
-                </div>
-            </header>
-
-        <main class="flex-1 flex flex-col justify-center my-6">
-            
-                            <div id="view-login" class="zinc-card rounded-xl p-6 text-center shadow-2xl space-y-4">
-                    <div class="text-center space-y-1">
-                        <h3 id="login-title-header" class="text-base font-bold text-white tracking-wide font-mono">[ACCESS CENTRAL GATEWAY]</h3>
-                        <p id="login-subtitle" class="text-[11px] text-zinc-500">Provide credentials to initialize session link</p>
-                    </div>
-
-                    <div id="email-input-group" class="space-y-3">
-                        <input type="text" id="login-email" placeholder="Enter Gmail Address (e.g. name@gmail.com)" class="w-full bg-zinc-950 border border-zinc-900 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-zinc-700 tracking-wide font-mono">
-                        
-                        <input type="email" id="login-mail" placeholder="ENTER YOUR EMAIL" class="w-full p-3 bg-zinc-900 border border-zinc-700 text-white rounded">
-<input type="password" id="login-pasw" maxlength="4" placeholder="ENTER 4-DIGIT PIN" class="w-full p-3 bg-zinc-900 border border-zinc-700 text-white rounded">
-
-<button onclick="handleGmailLogin()" class="w-full p-3 mt-4 bg-orange-600 text-white font-bold rounded">
-    INITIALIZE SECURE ACCESS
-</button>
-
-                    </div>
-
-                    <div id="quick-pin-group" class="hidden space-y-3 p-2 text-center">
-                        <p class="text-xs text-zinc-400">Welcome Back</p>
-                        <p id="quick-login-email" class="text-xs text-orange-400 font-bold font-mono"></p>
-                        <input type="password" id="returning-pin" maxlength="4" placeholder="ENTER PIN TO UNLOCK" class="w-full bg-zinc-900 border border-zinc-800 rounded-lg px-3 py-2 text-center text-sm font-bold text-white focus:outline-none focus:border-zinc-700 tracking-widest font-mono">
-                        <button onclick="handleQuickPinUnlock()" class="w-full bg-white hover:bg-zinc-200 text-black text-xs font-bold py-2 rounded-lg transition tracking-wide font-mono">
-                            UNLOCK PROFILE
-                        </button>
-                        <button onclick="handleForgetSession()" class="text-[10px] text-zinc-600 underline block mx-auto pt-1">Use a different account</button>
-                    </div>
-                </div>
-
-
-            <div id="view-role" class="hidden zinc-card rounded-xl p-6 text-center shadow-2xl">
-                <h3 class="text-base font-bold mb-1">Select Account Type</h3>
-                <p class="text-xs text-zinc-400 mb-6">Are you searching for housing or listing a property?</p>
-                                <div class="grid grid-cols-2 gap-3">
-                    <button onclick="selectRole('buyer')" class="p-4 bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 rounded-xl transition flex flex-col items-center justify-center space-y-1">
-                        <span class="text-xs font-mono text-zinc-500 font-bold">[BUYER]</span>
-                        <span class="text-xs font-bold text-white">I am a Buyer</span>
-                    </button>
-                    <button onclick="selectRole('seller')" class="p-4 bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 rounded-xl transition flex flex-col items-center justify-center space-y-1">
-                        <span class="text-xs font-mono text-zinc-500 font-bold">[SELLER]</span>
-                        <span class="text-xs font-bold text-white">I am a Seller</span>
-                    </button>
-                </div>
-                </div>
-            </div>
-            <div id="view-buyer-location" class="hidden zinc-card rounded-xl p-6 shadow-2xl space-y-4">
-                <div>
-                    <h3 class="text-base font-bold mb-1">Your Location</h3>
-                    <p class="text-xs text-zinc-400">Specify your region to sync local asset currencies.</p>
-                </div>
-                <input type="text" id="buyer-country" placeholder="Country (e.g. Nigeria)" class="w-full bg-zinc-950 border border-zinc-800 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:border-orange-500 text-white">
-                <input type="text" id="buyer-state" placeholder="State / Province" class="w-full bg-zinc-950 border border-zinc-800 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:border-orange-500 text-white">
-                <button onclick="processBuyerRegistration()" class="w-full bg-white text-black text-xs font-bold py-3 rounded-lg tracking-wider">ENTER MARKETPLACE BASE</button>
-            </div>
-
-            <div id="view-seller-phone" class="hidden zinc-card rounded-xl p-6 shadow-2xl space-y-4">
-                <div>
-                    <h3 class="text-base font-bold mb-1">Seller Verification</h3>
-                    <p class="text-xs text-zinc-400">Sellers must authenticate their locale parameters before listing items.</p>
-                </div>
-                <input type="tel" id="seller-phone" placeholder="Phone Number (e.g. +234...)" class="w-full bg-zinc-950 border border-zinc-800 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:border-orange-500 text-white">
-                <input type="text" id="seller-country" placeholder="Country" class="w-full bg-zinc-950 border border-zinc-800 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:border-orange-500 text-white">
-                <input type="text" id="seller-state" placeholder="State / Province" class="w-full bg-zinc-950 border border-zinc-800 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:border-orange-500 text-white">
-                <button onclick="processSellerRegistration()" class="w-full bg-orange-600 text-white text-xs font-bold py-3 rounded-lg tracking-wider">VERIFY SELLER IDENTIFICATION</button>
-            </div>
-                        <div id="view-marketplace" class="hidden space-y-3">
-                    <div class="flex items-center justify-between border-b border-zinc-900 pb-2 text-[10px] font-mono tracking-wide">
-                        <div class="flex flex-col space-y-0.5">
-                            <span id="display-user-id" class="text-white"></span>
-                            <span id="display-user-locale" class="text-zinc-500"></span>
-                        </div>
-                        <button onclick="handleLogout()" class="text-orange-500 font-bold hover:text-orange-400">[LOGOUT ACCOUNT]</button>
-                    </div>
-
-                    <input type="text" id="market-search" oninput="executeInstantSearch()" placeholder="Search by area or city..." class="w-full bg-zinc-950 border border-zinc-900 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-zinc-800 tracking-wide font-mono">
-
-                    <div id="seller-management-panel" class="hidden zinc-card rounded-xl p-4 border border-zinc-900 bg-zinc-950 space-y-3">
-                        <h4 class="text-xs font-bold text-white font-mono tracking-wide border-b border-zinc-900 pb-1">[POST NEW REAL ESTATE ASSET]</h4> 
-                            <div style="margin-top: 12px; margin-bottom: 12px; padding: 10px; background-color: #09090b; border: 1px solid #18181b; border-radius: 8px; font-family: monospace;">
-        <p style="margin: 0; font-size: 11px; color: #a1a1aa;">ADS ACCOUNT BALANCE</p>
-        <p style="margin: 4px 0 0 0; font-size: 14px; color: #ffffff; font-weight: bold;">Boost Coins: <span id="dash-coins">0</span></p>
-        <p style="margin: 2px 0 0 0; font-size: 10px; color: #f97316;">Progress to next coin: <span id="dash-seconds">0</span>/100s</p>
+    <header class="border-b border-zinc-900 pb-3 flex justify-between items-center">
+        <div class="flex items-center gap-2">
+            <span class="text-orange-500 font-black tracking-tighter text-xl">LIGHTVIEW</span>
+            <span class="text-zinc-500 text-[10px] font-mono mt-1">MARKETPLACE</span>
         </div>
-    
-    <div id="inventory-grid" class="grid grid-cols-1 gap-4"></div>
-</main>
+        <div class="flex items-center gap-2">
+            <div id="global-translate-element"></div>
+            <span class="text-[10px] bg-emerald-950 text-emerald-400 px-2 py-0.5 rounded border border-emerald-900 font-mono">LIVE SYSTEM</span>
+        </div>
+    </header>
+    <main class="flex-1 flex flex-col justify-center my-6">
 
-<footer class="text-center text-zinc-600 font-mono text-xs p-3 border-t border-zinc-900">
-    Lightview Housing Hub @ 2026
-</footer>
+        <div id="view-login" class="zinc-card rounded-xl p-6 shadow-2xl space-y-4">
+            <div class="text-center space-y-1">
+                <h3 id="login-title-header" class="text-base font-bold text-white tracking-wide font-mono">ACCESS CENTRAL GATEWAY</h3>
+                <p id="login-subtitle" class="text-[11px] text-zinc-500 font-mono">Provide credentials to initialize session link</p>
+            </div>
+            
+            <div id="email-input-group" class="space-y-3">
+                <input type="email" id="login-mail" placeholder="ENTER YOUR GMAIL ADDRESS" class="w-full p-3 bg-zinc-950 border border-zinc-900 rounded text-xs text-zinc-300 font-mono focus:outline-none focus:border-zinc-700">
+                <input type="password" id="login-pasw" maxlength="4" placeholder="ENTER 4-DIGIT PIN" class="w-full p-3 bg-zinc-950 border border-zinc-900 rounded text-xs text-center font-mono text-white tracking-widest focus:outline-none focus:border-zinc-700">
+            </div>
 
+            <button onclick="handleLoginRequest()" class="w-full p-3 bg-orange-600 hover:bg-orange-700 text-white font-bold rounded transition text-sm font-mono">INITIALIZE SECURE ACCESS</button>
+
+            <div id="quick-pin-group" class="hidden space-y-3 p-2 text-center">
+                <p class="text-xs text-zinc-400">Welcome Back!<br><span class="text-[10px] text-zinc-600">Enter device hardware PIN to quick session link</span></p>
+                <input type="password" id="returning-pin" maxlength="4" placeholder="ENTER QUICK PIN" class="w-full p-3 bg-zinc-950 border border-zinc-900 rounded text-xs text-center font-mono text-white tracking-widest focus:outline-none focus:border-zinc-700">
+                <button onclick="handleQuickPinUnlock()" class="w-full p-3 bg-zinc-800 hover:bg-zinc-700 text-white font-bold rounded text-xs font-mono">UNLOCK PROFILE</button>
+                <button onclick="handleForgetSession()" class="text-[10px] text-zinc-500 underline block mx-auto mt-2">Clear Profile Session Data</button>
+            </div>
+        </div>
+        <div id="view-role" class="hidden zinc-card rounded-xl p-6 shadow-2xl space-y-4">
+            <div class="text-center">
+                <h3 class="text-base font-bold text-white tracking-wide">ACCOUNT CLASSIFICATION</h3>
+                <p class="text-xs text-zinc-400 mt-1">Are you searching for housing or listing a property asset?</p>
+            </div>
+            <div class="grid grid-cols-2 gap-3">
+                <button onclick="selectRole('Buyer')" class="p-4 bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 rounded-xl text-center text-xs font-bold text-zinc-300 transition">As Buyer / Client</button>
+                <button onclick="selectRole('Seller')" class="p-4 bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 rounded-xl text-center text-xs font-bold text-white transition">As Seller / Owner</button>
+            </div>
+        </div>
+
+        <div id="view-buyer-location" class="hidden zinc-card rounded-xl p-6 shadow-2xl space-y-4">
+            <h4 class="text-sm font-bold text-white font-mono">LOCATION MATRIX SETUP</h4>
+            <p class="text-xs text-zinc-400">Specify your region to sync local asset currencies.</p>
+            <input type="text" id="buyer-country" placeholder="Country (e.g. Nigeria)" class="w-full p-3 bg-zinc-950 border border-zinc-900 rounded text-xs text-white">
+            <input type="text" id="buyer-state" placeholder="State / Province" class="w-full p-3 bg-zinc-950 border border-zinc-900 rounded text-xs text-white">
+            <button onclick="processBuyerRegistration()" class="w-full p-3 bg-white text-black font-bold rounded text-xs transition">INITIALIZE MARKETPLACE ENTRY</button>
+        </div>
+
+        <div id="view-seller-phone" class="hidden zinc-card rounded-xl p-6 shadow-2xl space-y-4">
+            <h4 class="text-sm font-bold text-white font-mono">SELLER VERIFICATION</h4>
+            <p class="text-xs text-zinc-400">Sellers must authenticate localized telephone metadata parameters before listing.</p>
+            <input type="tel" id="seller-phone" placeholder="Phone Number (e.g. +234...)" class="w-full p-3 bg-zinc-950 border border-zinc-900 rounded text-xs text-white font-mono">
+            <input type="text" id="seller-country" placeholder="Country (e.g. Nigeria)" class="w-full p-3 bg-zinc-950 border border-zinc-900 rounded text-xs text-white">
+            <input type="text" id="seller-state" placeholder="State / Province" class="w-full p-3 bg-zinc-950 border border-zinc-900 rounded text-xs text-white">
+            <button onclick="processSellerRegistration()" class="w-full p-3 bg-orange-600 hover:bg-orange-700 text-white font-bold rounded text-xs font-mono">VERIFY SELLER IDENTIFICATION</button>
+        </div>
+        <div id="view-marketplace" class="hidden space-y-4">
+            <div class="flex items-center justify-between border-b border-zinc-900 pb-3">
+                <div class="flex flex-col">
+                    <span id="display-user-id" class="text-xs text-white font-mono font-bold">ID: ACCOUNT PENDING</span>
+                    <span id="display-user-locale" class="text-[10px] text-zinc-500 font-mono">LOCALE: LOCALIZATION ERROR</span>
+                </div>
+                <button onclick="handleLogout()" class="text-[10px] text-zinc-500 hover:text-orange-400 underline font-mono">LOGOUT PROFILE</button>
+            </div>
+
+            <div class="zinc-card rounded-xl p-4 space-y-3">
+                <div class="flex justify-between items-center">
+                    <span class="text-xs text-zinc-400 font-mono">Coin Wallet Balance:</span>
+                    <span class="text-sm font-bold text-orange-400 font-mono"><span id="sh-coins">0</span> COINS</span>
+                </div>
+                <div class="flex justify-between items-center text-[11px] text-zinc-500 font-mono">
+                    <span>Watched Ads Progress:</span>
+                    <span><span id="sh-watched">0</span> / 10 ads</span>
+                </div>
+                <div class="grid grid-cols-2 gap-2">
+                    <button onclick="watchAdsForBoost()" class="p-2.5 bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 text-[11px] font-bold text-white rounded transition font-mono flex justify-center items-center gap-1"> Watch Ad Room</button>
+                    <button id="btn-promote-asset" class="hidden p-2.5 bg-orange-950/40 hover:bg-orange-900/40 border border-orange-900 text-[11px] font-bold text-orange-400 rounded transition font-mono"> Apply Boost (1 Coin)</button>
+                </div>
+            </div>
+
+            <div class="flex gap-2">
+                <input type="text" id="market-search" oninput="executeInstantSearch()" placeholder="Search assets by city, region or area..." class="w-full p-2.5 bg-zinc-950 border border-zinc-900 rounded-lg text-xs text-zinc-300 focus:outline-none focus:border-zinc-700">
+            </div>
+
+            <div class="flex items-center justify-between text-zinc-500 font-mono text-[10px]">
+                <span>GLOBAL SYSTEM REGISTER</span>
+                <span>REAL ESTATE LISTINGS</span>
+            </div>
+
+            <div id="inventory-grid" class="grid grid-cols-1 gap-4"></div>
+        </div>
+        <div id="seller-management-panel" class="hidden zinc-card rounded-xl p-5 shadow-2xl space-y-4 mt-2">
+            <h4 class="text-xs font-bold text-white tracking-wide font-mono text-center border-b border-zinc-900 pb-2">POST NEW REAL ESTATE ASSET</h4>
+            <div class="space-y-3">
+                <div>
+                    <label class="text-[10px] font-mono text-zinc-400 block mb-1">ASSET DESCRIPTION OR NAME</label>
+                    <input type="text" id="listing-title" placeholder="e.g. Luxury Duplex Apartment" class="w-full p-2.5 bg-zinc-950 border border-zinc-900 rounded text-xs text-white focus:outline-none">
+                </div>
+                <div>
+                    <label class="text-[10px] font-mono text-zinc-400 block mb-1">LOCATION REGION OR CITY</label>
+                    <input type="text" id="listing-area" placeholder="e.g. Ikeja, Lagos" class="w-full p-2.5 bg-zinc-950 border border-zinc-900 rounded text-xs text-white focus:outline-none">
+                </div>
+                <div>
+                    <label class="text-[10px] font-mono text-zinc-400 block mb-1">ASSET VALUATION PRICE (USD $)</label>
+                    <input type="number" id="listing-price" placeholder="e.g. 25000" class="w-full p-2.5 bg-zinc-950 border border-zinc-900 rounded text-xs font-mono text-white focus:outline-none">
+                </div>
+                <button onclick="handleCreateListing()" class="w-full p-3 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded text-xs font-mono transition">COMMIT PROPERTY TO GLOBAL INDEX</button>
+            </div>
+        </div>
+
+    </main>
+
+    <footer class="text-center text-zinc-700 font-mono text-[9px] border-t border-zinc-910 pt-3 mt-4 space-y-1">
+        <div>Lightview Real Estate Housing Hub v2.8.1</div>
+        <div>Active Allocation Buffer: 512MB / 528MB Free Tier Baseline</div>
+   </footer>
 <script>
-// STEP 1 & 3: AD LOGIC & CHAT ROUTING
-function openSellerChat(sellerId) {
-    let adOverlay = document.createElement("div");
-    adOverlay.id = "picture-ad-overlay";
-    adOverlay.style = "position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.95); z-index:9999; display:flex; flex-direction:column; justify-content:center; align-items:center; color:white; font-family:sans-serif;";
-    
-    adOverlay.innerHTML = `
-        <div style="background:#18181b; padding:24px; border-radius:16px; text-align:center; border:1px solid #27272a; max-width:90%; width:340px;">
-            <p style="margin-bottom:12px; color:#a1a1aa; font-size:13px; font-family:monospace;">ADVERTISEMENT</p>
-            <div style="width:300px; height:250px; background:#27272a; margin:15px auto; display:flex; justify-content:center; align-items:center; border-radius:8px; border:1px dashed #52525b;">
-                <span style="color:#a1a1aa; font-size:14px; font-family:monospace;">[ 300x250 Sponsor Banner ]</span>
-            </div>
-            <p id="ad-countdown" style="font-weight:bold; color:#f97316; font-size:16px; font-family:monospace;">Unlocking chat in 3 seconds...</p>
-        </div>
-    `;
-    
-    document.body.appendChild(adOverlay);
-    let secondsLeft = 3;
-    
-    let adTimer = setInterval(() => {
-        secondsLeft -= 1;
-        document.getElementById("ad-countdown").innerText = `Unlocking chat in ${secondsLeft} seconds...`;
-        
-        if (secondsLeft <= 0) {
-            clearInterval(adTimer);
-            document.body.removeChild(adOverlay);
-            handleChatRouting(sellerId);
-        }
-    }, 1000);
-}
+// ============================================================================
+// LAYER 1: GLOBAL STATE, LIVE API CURRENCY REGISTRY & STATE BASELINE
+// ============================================================================
 
-function handleChatRouting(sellerId) {
-    window.location.href = "mailto:" + sellerId + "?subject=Inquiry about your Property Marketplace Listing";
-}
-
-        <script>
-        // STEP 1 & 3: AD LOGIC & CHAT ROUTING
-function openSellerChat(sellerId) {
-    // 1. Create the dark pop-up overlay window
-    let adOverlay = document.createElement("div");
-    adOverlay.id = "picture-ad-overlay";
-    adOverlay.style = "position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.95); z-index:9999; display:flex; flex-direction:column; justify-content:center; align-items:center; color:white; font-family:sans-serif;";
-    
-    // 2. Insert the picture box and the 3-second countdown text
-    adOverlay.innerHTML = `
-        <div style="background:#18181b; padding:24px; border-radius:16px; text-align:center; border:1px solid #27272a; max-width:90%; width:340px;">
-            <p style="margin-bottom:12px; color:#a1a1aa; font-size:13px; font-family:monospace;">ADVERTISEMENT</p>
-            
-            <div style="width:300px; height:250px; background:#27272a; margin:15px auto; display:flex; justify-content:center; align-items:center; border-radius:8px; border:1px dashed #52525b;">
-                <span style="color:#a1a1aa; font-size:14px; font-family:monospace;">[ 300x250 Sponsor Banner ]</span>
-            </div>
-            
-            <p id="ad-countdown" style="font-weight:bold; color:#f97316; font-size:16px; font-family:monospace;">Unlocking chat in 3 seconds...</p>
-        </div>
-    `;
-    
-    document.body.appendChild(adOverlay);
-    
-    let secondsLeft = 3;
-    
-    // 3. Start the countdown timer
-    let adTimer = setInterval(() => {
-        secondsLeft -= 1;
-        document.getElementById("ad-countdown").innerText = `Unlocking chat in ${secondsLeft} seconds...`;
-        
-        if (secondsLeft <= 0) {
-            clearInterval(adTimer);
-            document.body.removeChild(adOverlay); // Close ad
-            handleChatRouting(sellerId); // Open chat link
-        }
-    }, 1000);
-}
-
-function handleChatRouting(sellerId) {
-    // This instantly opens the user's mobile mail client pre-addressed to the owner
-    window.location.href = "mailto:" + sellerId + "?subject=Inquiry about your Property Marketplace Listing";
-}
-
-            // LAYER 1: GLOBAL DATA REGISTRY
-    let session = {
-    email: "",
-    role: "",
-    phone: "",
-    country: "",
-    state: "",
-    registrationNumber: "",
-    watchedAdsCount: 0,
-    boostCoins: 0,
-    watchedAdSeconds: 0
+// 1. Comprehensive Currency Exchange Registry (Fallback Baselines)
+let currencyRates = {
+    "united states": { symbol: "$", rate: 1.00 },
+    "united kingdom": { symbol: "£", rate: 0.79 },
+    "eurozone": { symbol: "€", rate: 0.93 },
+    "nigeria": { symbol: "₦", rate: 1600.00 },
+    "ghana": { symbol: "GH₵", rate: 15.10 },
+    "kenya": { symbol: "KSh", rate: 129.50 },
+    "south africa": { symbol: "R", rate: 18.20 },
+    "canada": { symbol: "C$", rate: 1.37 },
+    "australia": { symbol: "A$", rate: 1.51 },
+    "india": { symbol: "₹", rate: 83.50 },
+    "china": { symbol: "¥", rate: 7.25 },
+    "japan": { symbol: "¥", rate: 157.30 },
+    "united arab emirates": { symbol: "AED", rate: 3.67 },
+    "saudi arabia": { symbol: "SAR", rate: 3.75 },
+    "egypt": { symbol: "E£", rate: 47.90 }
 };
 
+// 2. Global Runtime Engine State Tracker
+let appState = {
+    user: null,         
+    role: null,         
+    country: "united states",
+    stateRegion: "",
+    coins: 0,           
+    adProgress: 0,      
+    activeSearch: ""
+};
 
-    let nextBuyerSequence = 1;
-    let nextSellerSequence = 1;
+// 3. Clean Slate Production Database (Strictly Zero Pre-loaded Listings)
+let propertiesData = [];
 
-    let propertiesData = [];
+// 4. Verification Framework & Live API Stream Fetcher
+window.addEventListener('DOMContentLoaded', () => {
+    console.log("System Status: Layer 1 Core Interface Assembled Successfully.");
+    fetchLiveExchangeRates();
+    checkExistingSession();
+});
 
-    const currencyRates = {
-        "united states": { symbol: "USD $", rate: 1 },
-        "united kingdom": { symbol: "GBP £", rate: 0.79 },
-        "eurozone": { symbol: "EUR €", rate: 0.93 },
-        "canada": { symbol: "CAD $", rate: 1.37 },
-        "australia": { symbol: "AUD $", rate: 1.51 },
-        "japan": { symbol: "JPY ¥", rate: 157 },
-        "china": { symbol: "CNY ¥", rate: 7.25 },
-        "india": { symbol: "INR ₹", rate: 83.5 },
-        "south africa": { symbol: "ZAR R", rate: 18.2 },
-        "united arab emirates": { symbol: "AED", rate: 3.67 },
-        "saudi arabia": { symbol: "SAR", rate: 3.75 },
-        "brazil": { symbol: "BRL R$", rate: 5.36 },
-        "mexico": { symbol: "MXN $", rate: 18.4 },
-        "nigeria": { symbol: "NGN", rate: 1600 },
-        "ghana": { symbol: "GHS ₵", rate: 15 },
-        "kenya": { symbol: "KES KSh", rate: 129 }
-    };
+async function fetchLiveExchangeRates() {
+    try {
+        const response = await fetch('https://open.er-api.com/v6/latest/USD');
+        if (!response.ok) throw new Error("API Data Request Halted");
+        const data = await response.json();
+        const liveRates = data.rates;
+        
+        // Loop through all predefined keys to update matching structural indices dynamically
+        if (liveRates.NGN) currencyRates["nigeria"].rate = liveRates.NGN;
+        if (liveRates.GHS) currencyRates["ghana"].rate = liveRates.GHS;
+        if (liveRates.KES) currencyRates["kenya"].rate = liveRates.KES;
+        if (liveRates.GBP) currencyRates["united kingdom"].rate = liveRates.GBP;
+        if (liveRates.EUR) currencyRates["eurozone"].rate = liveRates.EUR;
+        if (liveRates.ZAR) currencyRates["south africa"].rate = liveRates.ZAR;
+        if (liveRates.CAD) currencyRates["canada"].rate = liveRates.CAD;
+        if (liveRates.AUD) currencyRates["australia"].rate = liveRates.AUD;
+        if (liveRates.INR) currencyRates["india"].rate = liveRates.INR;
+        if (liveRates.AED) currencyRates["united arab emirates"].rate = liveRates.AED;
+        
+        console.log("System Registry Live Synced.");
+    } catch (error) {
+        console.warn("API stream unreachable. Defaulting to system fallback matrices.", error);
+    }
+}
 
-    // LAYER 2: CORE AUTHENTICATION TRIGGERS & SESSION PERSISTENCE (PIN PROTECTED)
-function handleGmailLogin() {
-    const emailInput = document.getElementById('login-mail').value;
+function googleTranslateElementInit() {
+    new google.translate.TranslateElement({
+        pageLanguage: 'en',
+        layout: google.translate.TranslateElement.InlineLayout.SIMPLE
+    }, 'global-translate-element');
+}
+// ============================================================================
+// LAYER 2: SESSION PERSISTENCE & GATEWAY SECURITY AUTHENTICATION
+// ============================================================================
+
+// 1. Check for Saved Local Memory Session on Page Boot up
+function checkExistingSession() {
+    const savedUser = localStorage.getItem('lightview_session_user');
+    const savedRole = localStorage.getItem('lightview_session_role');
+    const savedCountry = localStorage.getItem('lightview_session_country');
+    const savedState = localStorage.getItem('lightview_session_state');
+    const savedCoins = localStorage.getItem('lightview_session_coins');
+    const savedProgress = localStorage.getItem('lightview_session_ad_progress');
+
+    if (savedUser && savedRole) {
+        // Hydrate global memory state instantly from local device storage
+        appState.user = savedUser;
+        appState.role = savedRole;
+        appState.country = savedCountry ? savedCountry.toLowerCase() : "united states";
+        appState.stateRegion = savedState || "";
+        appState.coins = savedCoins ? parseInt(savedCoins) : 0;
+        appState.adProgress = savedProgress ? parseInt(savedProgress) : 0;
+
+        // Sync visual UI elements
+        document.getElementById('sh-coins').innerText = appState.coins;
+        document.getElementById('sh-watched').innerText = appState.adProgress;
+
+        // Bypass gateway screens directly to active marketplace layout panels
+        routeSessionToMarketplace();
+    } else {
+        // No valid data found: Display central gateway login input configurations
+        document.getElementById('view-login').classList.remove('hidden');
+    }
+}
+
+// 2. Main Login Event Request Processor
+function handleLoginRequest() {
+    const emailInput = document.getElementById('login-mail').value.trim();
     const pinInput = document.getElementById('login-pasw').value.trim();
 
-    // Basic validation
-    if (!emailInput || !emailInput.includes('@gmail.com')) {
-        alert("Please provide a valid Gmail address.");
+    // Strict Input Domain Verification Mapping
+    if (!emailInput || !emailInput.toLowerCase().includes('@gmail.com')) {
+        alert("SECURITY EXCEPTION: Provide a valid authenticated Gmail account address.");
         return;
     }
-    
     if (pinInput.length !== 4 || isNaN(pinInput)) {
-        alert("Security PIN must be exactly 4 numbers.");
+        alert("SECURITY EXCEPTION: System authorization PIN must be exactly 4 numerical units.");
         return;
     }
 
-    // Success: Hide the login view and show the next view
+    // Capture baseline identifier matrix fields
+    appState.user = emailInput;
+    
+    // Switch login gateway out and toggle profile role classification display open
     document.getElementById('view-login').classList.add('hidden');
     document.getElementById('view-role').classList.remove('hidden');
 }
 
+// 3. Save Active State Arrays into Persistent LocalStorage Matrices
+function saveStateToDeviceLocalStorage() {
+    localStorage.setItem('lightview_session_user', appState.user);
+    localStorage.setItem('lightview_session_role', appState.role);
+    localStorage.setItem('lightview_session_country', appState.country);
+    localStorage.setItem('lightview_session_state', appState.stateRegion);
+    localStorage.setItem('lightview_session_coins', appState.coins);
+    localStorage.setItem('lightview_session_ad_progress', appState.adProgress);
+}
 
-
-    function handleQuickPinUnlock() {
-        const inputPin = document.getElementById('returning-pin').value.trim();
-        const localProfile = JSON.parse(localStorage.getItem('savedUserProfile'));
-
-        if (inputPin === localProfile.pin) {
-            // PIN Matches perfectly! Restore entire session state
-            session = localProfile;
-            
-            document.getElementById('view-login').classList.add('hidden');
-            document.getElementById('view-marketplace').classList.remove('hidden');
-            
-            // If they are a seller, make sure their management panel unhides
-            if (session.role === 'seller') {
-                document.getElementById('seller-management-panel').classList.remove('hidden');
-            }
-            
-            alert("Access authorized. Welcome back!");
-            renderInventory(propertiesData);
-        } else {
-            alert("INVALID SECURITY PIN. ACCESS DENIED.");
-            document.getElementById('returning-pin').value = '';
-        }
-    }
-
-    function handleForgetSession() {
-        localStorage.removeItem('savedUserProfile');
-        location.reload();
-    }
-    // INITIALIZE GLOBAL TRANSLATION HUB
-    window.googleTranslateElementInit = function() {
-        new google.translate.TranslateElement({
-            pageLanguage: 'en',
-            layout: google.translate.TranslateElement.InlineLayout.SIMPLE,
-            autoDisplay: false
-        }, 'global-translate-element');
-    };
+// 4. Session Destruction Framework (Logout Procedure)
+function handleLogout() {
+    // Purge local storage blocks
+    localStorage.clear();
     
-    // SYSTEM INTERCEPT ON APP BOOTUP
-    window.addEventListener('DOMContentLoaded', () => {
-        // Restore inventory data safely
-        const storedInventory = localStorage.getItem('globalPropertiesBackup');
-        if (storedInventory) {
-            propertiesData = JSON.parse(storedInventory);
-        }
+    // Reset runtime configuration track variables
+    appState.user = null;
+    appState.role = null;
+    appState.country = "united states";
+    appState.stateRegion = "";
+    appState.coins = 0;
+    appState.adProgress = 0;
 
-        // Check if device already has a registered profile
-        const savedProfile = localStorage.getItem('savedUserProfile');
-        if (savedProfile) {
-            const profile = JSON.parse(savedProfile);
-            
-            // Hide normal login fields, activate the Quick PIN UI wrapper
-            document.getElementById('email-input-group').classList.add('hidden');
-            document.getElementById('quick-pin-group').classList.remove('hidden');
-            document.getElementById('quick-login-email').innerText = profile.email;
-            document.getElementById('login-title-header').innerText = "[SECURE PIN UNLOCK]";
-            document.getElementById('login-subtitle').innerText = "Device profile detected. Enter numeric password.";
-        }
-    });
+    // Hard reload frame viewport clean slate orientation parameters
+    window.location.reload();
+}
+// ============================================================================
+// LAYER 3: ROLE REGISTRATION & STRUCTURAL ROUTING CONTEXT
+// ============================================================================
 
-          
-     // LAYER 3 & 4: INTERACTION LOGIC & REGISTRATION
-    function selectRole(chosenRole) {
-        session.role = chosenRole;
-        document.getElementById('view-role').classList.add('hidden');
-        
-        if (chosenRole === 'buyer') {
-            document.getElementById('view-buyer-location').classList.remove('hidden');
-        } else {
-            document.getElementById('view-seller-phone').classList.remove('hidden');
-        }
-    }
-
-    function processBuyerRegistration() {
-        const country = document.getElementById('buyer-country').value.trim().toLowerCase();
-        const state = document.getElementById('buyer-state').value.trim();
-        
-        if (!country || !state) {
-            alert("Please fill in your country and state.");
-            return;
-        }
-        
-        session.country = country;
-        session.state = state;
-        session.registrationNumber = "0-" + nextBuyerSequence;
-        nextBuyerSequence++;
-        
-        alert("Buyer Assigned ID: " + session.registrationNumber);
-        
-        document.getElementById('view-buyer-location').classList.add('hidden');
-        document.getElementById('view-marketplace').classList.remove('hidden');
-               localStorage.setItem('savedUserProfile', JSON.stringify(session));
-               
-        renderInventory(propertiesData);
-    }
-     function processSellerRegistration() {
-        const phone = document.getElementById('seller-phone').value.trim();
-        const country = document.getElementById('seller-country').value.trim().toLowerCase();
-        const state = document.getElementById('seller-state').value.trim();
-        
-        if (!phone || !country || !state) {
-            alert("All fields are required for seller verification.");
-            return;
-        }
-        
-        session.phone = phone;
-        session.country = country;
-        session.state = state;
-        session.registrationNumber = "1-" + nextSellerSequence;
-        nextSellerSequence++;
-        
-        alert("Seller Verified ID: " + session.registrationNumber);
-        
-                localStorage.setItem('savedUserProfile', JSON.stringify(session));
-        document.getElementById('view-seller-phone').classList.add('hidden');
-        document.getElementById('view-marketplace').classList.remove('hidden');
-        renderInventory(propertiesData);
-    }
-        // LAYER 5: INVENTORY RENDER ENGINE
-    function renderInventory(items) {
-        const grid = document.getElementById('inventory-grid');
-        grid.innerHTML = '';
-        
-        document.getElementById('display-user-id').innerText = "ID: " + session.registrationNumber;
-        document.getElementById('display-user-locale').innerText = "LOCALE: " + session.state + ", " + session.country.toUpperCase();
-
-        if (items.length === 0) {
-            grid.innerHTML = `<p class="text-zinc-500 text-xs text-center py-8">No matching real estate listings found.</p>`;
-            return;
-        }
-
-        let currency = "USD $";
-        let rate = 1;
-        const userCountry = session.country.toLowerCase().trim();
-
-        if (currencyRates[userCountry]) {
-            currency = currencyRates[userCountry].symbol;
-            rate = currencyRates[userCountry].rate;
-        } else if (userCountry !== "") {
-            // Smart Fallback for all 195 countries: cuts the first 3 letters of their country name to make a currency code
-            currency = userCountry.substring(0, 3).toUpperCase() + " $";
-            rate = 1; 
-        }
-
-        items.forEach(item => {
-            const convertedPrice = (item.priceUSD * rate).toLocaleString();
-        var promoteSectionHtml = '';
-        if (session.role === 'seller' && item.sellerEmail === session.email) {
-            var currentBoost = item.boostPoints || 0;
-            promoteSectionHtml = '<div style="margin-top: 8px; padding-top: 8px; border-top: 1px solid #27272a; display: flex; justify-content: space-between; align-items: center;">' +
-                                 '<span style="font-size: 10px; color: #a1a1aa;">Boosts: +' + currentBoost + '</span>' +
-                                 '<div style="display: flex; gap: 4px;">' +
-                                     '<button onclick="watchAdForBoost(\'' + item.id + '\')" style="background-color: #f97316; color: #000000; font-size: 10px; font-weight: bold; padding: 4px 8px; border-radius: 4px; border: none; cursor: pointer;">Watch Ad</button>' +
-                                     '<button onclick="applyBoostCoin(\'' + item.id + '\')" style="background-color: #22c55e; color: #000000; font-size: 10px; font-weight: bold; padding: 4px 8px; border-radius: 4px; border: none; cursor: pointer;">Spend Coin</button>' +
-                                 '</div>' +
-                                 '</div>';
-        }
-        
-            const cardHtml = `
-                <div class="zinc-card rounded-xl p-4 border border-zinc-900 shadow-lg space-y-3">
-                    <div class="h-32 bg-zinc-950 rounded-lg border border-zinc-900 flex items-center justify-center text-zinc-700 text-xs font-mono">
-                        IMAGE PLACEHOLDER #${item.id}
-                    </div>
-                    <div class="space-y-1">
-                        <div class="flex justify-between items-start">
-                            <h4 class="text-sm font-bold text-white tracking-wide">${item.title}</h4>
-                            <span class="text-xs font-mono text-orange-400 font-bold">${currency} ${convertedPrice}</span>
-                        </div>
-                        <p class="text-xs text-zinc-400">${item.area}</p>
-                    </div>
-                    <button onclick="openPropertyDetails('${item.id}')" class="w-full my-1 bg-zinc-800 hover:bg-zinc-700 text-white font-bold py-2 px-4 rounded border border-zinc-700 text-xs font-mono tracking-wide transition">
-     VIEW SPECIFICATIONS
-</button>
-<button onclick="openSellerChat('${item.sellerEmail || item.id}')" class="w-full my-1 bg-orange-500 hover:bg-orange-600 text-black font-bold py-2 px-4 rounded text-xs font-mono tracking-wide transition">
-     CHAT WITH SELLER
-</button>
-
-                </div>
-            `;
-            grid.insertAdjacentHTML('beforeend', cardHtml);
-        });
-    }
-
-     // LAYER 6: INSTANT SEARCH SYSTEM
-    function executeInstantSearch() {
-        const query = document.getElementById('market-search').value.toLowerCase().trim();
-        const filtered = propertiesData.filter(item => 
-            item.title.toLowerCase().includes(query) || 
-            item.area.toLowerCase().includes(query)
-        );
-        renderInventory(filtered);
-    }
-
-    // LAYER 7: GOOGLE ADS INTEGRATION & FEATURES GATING
-    function triggerAdGate(propertyId) {
-        alert("Loading secure verification ad panel... Please wait 3 seconds.");
-        
-        setTimeout(() => {
-            session.watchedAdsCount++;
-            alert("Ad completed! Total watched: " + session.watchedAdsCount + ". Loading property asset details...");
-            openPropertyDetails(propertyId);
-        }, 3000);
-    }
-    // LOGOUT & SESSION EXTENSION SCRIPT
-     function handleLogout() {
-        localStorage.removeItem('savedUserProfile');
-        location.reload();
-    }
-   
-
-    // LAYER 7: SELLER ASSET MANAGEMENT ENGINE (PERSISTENT CORES)
-    function handleCreateListing() {
-        const title = document.getElementById('listing-title').value.trim();
-        const area = document.getElementById('listing-area').value.trim();
-        const priceUSD = parseFloat(document.getElementById('listing-price').value);
-
-        if (!title || !area || isNaN(priceUSD) || priceUSD <= 0) {
-            alert("Please accurately complete all property specification fields.");
-            return;
-        }
-
-        const newAsset = {
-            id: Date.now(),
-            title: title,
-            area: area,
-            priceUSD: priceUSD,
-            sellerEmail: session.email
-        };
-
-        propertiesData.push(newAsset);
-        localStorage.setItem('globalPropertiesBackup', JSON.stringify(propertiesData));
-        
-        document.getElementById('listing-title').value = '';
-        document.getElementById('listing-area').value = '';
-        document.getElementById('listing-price').value = '';
-
-        alert("Asset successfully published to global index!");
-        renderInventory(propertiesData);
-    }
-
-    function handleDeleteListing(assetId) {
-        if (confirm("Are you certain you want to completely withdraw this property from the marketplace?")) {
-            propertiesData = propertiesData.filter(item => item.id !== assetId);
-            localStorage.setItem('globalPropertiesBackup', JSON.stringify(propertiesData));
-            renderInventory(propertiesData);
-        }
-    }
-
-    // AUTOMATIC SYSTEM DATA RESTORE ON LOAD
-    window.addEventListener('DOMContentLoaded', () => {
-        const storedInventory = localStorage.getItem('globalPropertiesBackup');
-        if (storedInventory) {
-            propertiesData = JSON.parse(storedInventory);
-        }
-    });
-
-    function openPropertyDetails(id) {
-    // Finds the exact house listing from your inventory data array
-    let selectedItem = propertiesData.find(item => item.id == id);
+// 1. Assign Role Classification Strategy
+function selectRole(chosenRole) {
+    appState.role = chosenRole;
     
-    if (selectedItem) {
-        // Displays the real marketplace details smoothly
-        alert(` PROPERTY SPECIFICATIONS \n\nTitle: ${selectedItem.title}\nArea/City: ${selectedItem.area}\nPrice: $${selectedItem.priceUSD.toLocaleString()}\n\nClick 'Chat with Seller' if you want to contact the owner!`);
-    } else {
-        alert("Specifications for asset metadata contract # " + id);
+    // Hide classification panel instantly
+    document.getElementById('view-role').classList.add('hidden');
+    
+    // Route interface to specific demographic form panels
+    if (chosenRole === 'Buyer') {
+        document.getElementById('view-buyer-location').classList.remove('hidden');
+    } else if (chosenRole === 'Seller') {
+        document.getElementById('view-seller-phone').classList.remove('hidden');
     }
 }
 
-function watchAdForBoost(assetId) {
-    alert("Loading Premium Promotional Ad Room... Please sit tight.");
-    
-    setTimeout(function() {
-        session.watchedAdsCount = (session.watchedAdsCount || 0) + 1;
-        session.watchedAdSeconds = (session.watchedAdSeconds || 0) + 10;
-        
-        alert("Ad complete! (+10 seconds added). Progress: " + session.watchedAdSeconds + "/100s toward a Boost Coin.");
-        
-        if (session.watchedAdSeconds >= 100) {
-            session.boostCoins = (session.boostCoins || 0) + 1;
-            session.watchedAdSeconds -= 100;
-            alert("Success! You earned 1 Boost Coin! Total available: " + session.boostCoins);
-        }
-        
-        // Refresh the screen cleanly to update UI states
-        if (typeof renderInventory === 'function' && typeof assets !== 'undefined') {
-            renderInventory(assets);
-        }
-    }, 1500);
-}
+// 2. Process and Validate Buyer Meta Parameters
+function processBuyerRegistration() {
+    const countryVal = document.getElementById('buyer-country').value.trim().toLowerCase();
+    const stateVal = document.getElementById('buyer-state').value.trim();
 
-function applyBoostCoin(assetId) {
-    if (!session.boostCoins || session.boostCoins < 1) {
-        alert("Denied: You do not have enough Boost Coins. Watch more promo ads to unlock items.");
+    if (!countryVal || !stateVal) {
+        alert("REGISTRATION FAULT: All location field matrices must be completed.");
         return;
     }
-    
-    if (typeof assets !== 'undefined') {
-        var assetIndex = assets.findIndex(function(item) { return item.id == assetId; });
-        if (assetIndex !== -1) {
-            session.boostCoins -= 1;
-            assets[assetIndex].boostPoints = (assets[assetIndex].boostPoints || 0) + 1;
-            
-            localStorage.setItem('globalPropertiesBackup', JSON.stringify(assets));
-            alert("Success! Listing boosted by +1 ranking points.");
-            
-            // Sort listings so highest boosted items rise to the top
-            assets.sort(function(a, b) {
-                return (b.boostPoints || 0) - (a.boostPoints || 0);
-            });
-            
-            renderInventory(assets);
+
+    // Lock parameters into active state arrays
+    appState.country = countryVal;
+    appState.stateRegion = stateVal;
+
+    // Save session variables and jump into live marketplace layout shell
+    saveStateToDeviceLocalStorage();
+    routeSessionToMarketplace();
+}
+
+// 3. Process and Validate Seller Meta Parameters
+function processSellerRegistration() {
+    const phoneVal = document.getElementById('seller-phone').value.trim();
+    const countryVal = document.getElementById('seller-country').value.trim().toLowerCase();
+    const stateVal = document.getElementById('seller-state').value.trim();
+
+    if (!phoneVal || !countryVal || !stateVal) {
+        alert("REGISTRATION FAULT: Phone number, country, and state fields are strictly required.");
+        return;
+    }
+
+    // Lock parameters into active state arrays
+    appState.user = phoneVal; // Re-index profile ID parameter using telephone string
+    appState.country = countryVal;
+    appState.stateRegion = stateVal;
+
+    // Save session variables and jump into live marketplace layout shell
+    saveStateToDeviceLocalStorage();
+    routeSessionToMarketplace();
+}
+
+// 4. Global Structural Interface Router Window Controller
+function routeSessionToMarketplace() {
+    // Hide all gateway structures completely
+    document.getElementById('view-login').classList.add('hidden');
+    document.getElementById('view-role').classList.add('hidden');
+    document.getElementById('view-buyer-location').classList.add('hidden');
+    document.getElementById('view-seller-phone').classList.add('hidden');
+
+    // Sync header demographic data strings
+    document.getElementById('display-user-id').innerText = `ID: ${appState.user.toUpperCase()}`;
+    document.getElementById('display-user-locale').innerText = `LOCALE: ${appState.stateRegion.toUpperCase()}, ${appState.country.toUpperCase()} (${appState.role.toUpperCase()})`;
+
+    // Reveal main marketplace asset grid shell
+    document.getElementById('view-marketplace').classList.remove('hidden');
+
+    // If the account role is a Seller, expose the property submission creator widget panel
+    if (appState.role === 'Seller') {
+        document.getElementById('seller-management-panel').classList.remove('hidden');
+    } else {
+        document.getElementById('seller-management-panel').classList.add('hidden');
+    }
+
+    // Initialize clean marketplace feed rendering cycle
+    renderMarketplaceInventoryGrid();
+}
+// ============================================================================
+// LAYER 4: UNIVERSAL CURRENCY MATH & DYNAMIC GRID RENDERER
+// ============================================================================
+
+// 1. Core Dynamic Grid Inventory Generator
+function renderMarketplaceInventoryGrid() {
+    const gridTarget = document.getElementById('inventory-grid');
+    gridTarget.innerHTML = ""; // Clear active viewport panels
+
+    // Filter listings instantly based on user search string values
+    const filteredData = propertiesData.filter(item => {
+        const query = appState.activeSearch.toLowerCase();
+        return item.title.toLowerCase().includes(query) || 
+               item.area.toLowerCase().includes(query) ||
+               item.country.toLowerCase().includes(query) ||
+               item.state.toLowerCase().includes(query);
+    });
+
+    // If zero listing matches exist in memory, show a clean empty feedback message
+    if (filteredData.length === 0) {
+        gridTarget.innerHTML = `
+            <div class="text-center p-8 border border-dashed border-zinc-900 rounded-xl text-zinc-600 font-mono text-xs">
+                NO ACTIVE PROPERTIES LISTED FOR THIS REGION MATRIX
+            </div>
+        `;
+        return;
+    }
+
+    // Loop through listings and calculate currency profiles on the fly
+    filteredData.forEach(item => {
+        let displayPriceText = "";
+        const userCountry = appState.country.toLowerCase();
+
+        // Check if user's matching localized country exists inside our exchange registry
+        if (currencyRates[userCountry]) {
+            const config = currencyRates[userCountry];
+            const convertedPrice = (item.priceUSD * config.rate).toLocaleString(undefined, { maximumFractionDigits: 2 });
+            displayPriceText = `${config.symbol} ${convertedPrice}`;
         } else {
-            alert("Error finding asset specifications.");
+            // FALLBACK ENGINE: If user country is not listed, display standard base values in USD
+            const usdConfig = currencyRates["united states"];
+            displayPriceText = `${usdConfig.symbol} ${item.priceUSD.toLocaleString()}`;
         }
+
+        // Build the dynamic structural asset interface card layout wrapper
+        const card = document.createElement('div');
+        card.className = `zinc-card rounded-xl p-4 space-y-3 relative transition duration-300 ${item.isBoosted ? 'border-orange-500/60 shadow-[0_0_15px_rgba(234,88,12,0.15)]' : ''}`;
+        
+        card.innerHTML = `
+            ${item.isBoosted ? '<span class="absolute top-3 right-3 bg-orange-600 text-white text-[9px] font-black tracking-widest px-1.5 py-0.5 rounded font-mono animate-pulse"> BOOSTED</span>' : ''}
+            <div class="space-y-1">
+                <h5 class="text-xs font-bold text-white tracking-wide truncate max-w-[85%]">${item.title.toUpperCase()}</h5>
+                <p class="text-[10px] text-zinc-500 font-mono flex items-center gap-1"> ${item.area}, ${item.state.toUpperCase()}, ${item.country.toUpperCase()}</p>
+            </div>
+            <div class="flex justify-between items-center pt-2 border-t border-zinc-950">
+                <span class="text-sm font-black text-white font-mono tracking-tight">${displayPriceText}</span>
+                <button onclick="initializeSellerCommunicationStream('${item.sellerPhone}', '${item.title}')" class="px-3 py-1.5 bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 text-[10px] font-bold tracking-wide rounded-md text-zinc-300 font-mono transition">
+                     CHAT WITH SELLER
+                </button>
+            </div>
+        `;
+
+        // If the item is boosted, prepended directly to the front of the grid layout feed list
+        if (item.isBoosted) {
+            gridTarget.insertBefore(card, gridTarget.firstChild);
+        } else {
+            gridTarget.appendChild(card);
+        }
+    });
+}
+
+// 2. Real-Time Search Query Vector Execution Input Link
+function executeInstantSearch() {
+    appState.activeSearch = document.getElementById('market-search').value;
+    renderMarketplaceInventoryGrid();
+}
+
+// 3. Action Click Event: Connect Buyer to Seller using Direct System Line Logs
+function initializeSellerCommunicationStream(phone, title) {
+    const encodedSubject = encodeURIComponent(`Inquiry Regarding Real Estate Property: ${title}`);
+    // Open system client mail link matrix structure securely
+    window.location.href = `mailto:support@lightview.hub?subject=${encodedSubject}&body=Hello, I am interested in your property asset titled: "${title}". Please link me to mobile contact routing line: ${phone}`;
+}
+// ============================================================================
+// LAYER 5: AD ROOM WATCHING & COIN MINTING ENGINE
+// ============================================================================
+
+// 1. Core Ad Simulation Room Triggers
+function watchAdsForBoost() {
+    // Generate a sleek modal overlay box covering the mobile screen viewport completely
+    const adOverlay = document.createElement('div');
+    adOverlay.id = "ad-simulation-overlay";
+    adOverlay.className = "fixed inset-0 bg-black z-50 flex flex-col justify-center items-center p-6 text-center select-none";
+    
+    // Pick a random product ad topic to simulate live networks
+    const adPool = [
+        "Lightview Premium AI Chip Hosting Node Cluster",
+        "Apex Global Properties Tokenized Real Estate Funds",
+        "Xia Custom Native Operating System Hardware Matrix",
+        "BoostCoin Verified Direct Traffic Advertising Network"
+    ];
+    const chosenAdText = adPool[Math.floor(Math.random() * adPool.length)];
+
+    adOverlay.innerHTML = `
+        <div class="space-y-6 max-w-xs font-mono">
+            <div class="text-orange-500 font-black tracking-tighter text-2xl animate-pulse">LIGHTVIEW AD LINK</div>
+            <div class="p-4 border border-zinc-900 rounded-xl bg-zinc-950 text-xs text-zinc-400 leading-relaxed">
+                <span class="text-white block font-bold mb-2">SPONSORED ASSIGNMENT:</span>
+                "${chosenAdText}"
+            </div>
+            <div id="ad-countdown-timer" class="text-sm font-bold text-white tracking-widest bg-zinc-900 px-4 py-2.5 rounded-lg border border-zinc-800">
+                LOCK TIMEOUT: 3s
+            </div>
+            <p class="text-[10px] text-zinc-600">Coin token rewards will distribute securely once internal timer cycles fully clear.</p>
+        </div>
+    `;
+
+    document.body.appendChild(adOverlay);
+
+    // Initialize 3-Second Secure Timer Loop
+    let secondsLeft = 3;
+    const timerInterval = setInterval(() => {
+        secondsLeft--;
+        const timerUI = document.getElementById('ad-countdown-timer');
+        
+        if (timerUI) {
+            timerUI.innerText = `LOCK TIMEOUT: ${secondsLeft}s`;
+        }
+
+        if (secondsLeft <= 0) {
+            clearInterval(timerInterval);
+            // Destroy ad panel room viewport element cleanly
+            document.body.removeChild(adOverlay);
+            // Process the view tick increment execution routing
+            creditUserAdProgressRecord();
+        }
+    }, 1000);
+}
+
+// 2. Process Count Increments & Mint Earned Coins Safely
+function creditUserAdProgressRecord() {
+    appState.adProgress++;
+
+    // System logic check: Has user accumulated 10 complete ad room cycles?
+    if (appState.adProgress >= 10) {
+        appState.adProgress = 0; // Reset counter back to zero threshold
+        appState.coins++;        // Mint exactly 1 Boost Coin token into balance
+        alert("TRANSACTION SUCCESS: 10/10 Ads Completed! 1 Boost Coin has been successfully minted to your Wallet balance.");
+    } else {
+        // Simple visual system toast alert tracking current balance
+        alert(`AD VERIFIED: Progress tracker logged (${appState.adProgress} / 10). Watch more ads to generate your next Boost Coin!`);
+    }
+
+    // Update screen UI values instantly
+    document.getElementById('sh-coins').innerText = appState.coins;
+    document.getElementById('sh-watched').innerText = appState.adProgress;
+
+    // Check if the property promotion trigger buttons should alter visibility rules
+    evaluateBoostPromotionButtonAccessibility();
+
+    // Commit new balance records safely to device local cache storage
+    saveStateToDeviceLocalStorage();
+}
+// ============================================================================
+// LAYER 6: LIVE ASSET PROMOTION & GLOBAL SORTING ENGINE
+// ============================================================================
+
+// 1. Evaluate Button Accessibility for Promoting Items
+function evaluateBoostPromotionButtonAccessibility() {
+    const promoteBtn = document.getElementById('btn-promote-asset');
+    if (!promoteBtn) return;
+
+    // Only show promote button configurations if user is a Seller and possesses at least 1 coin
+    if (appState.role === 'Seller' && appState.coins >= 1) {
+        promoteBtn.classList.remove('hidden');
+    } else {
+        promoteBtn.classList.add('hidden');
     }
 }
 
-        </script>
-    </body>
-    </html>
-    """
+// 2. Main Executive Trigger: Apply Boost Token and Sync across the Network
+function applyBoostTokenToAsset(propertyId) {
+    if (appState.coins < 1) {
+        alert("TRANSACTION ERROR: Insufficient coin balance. Watch more ads to generate system tokens.");
+        return;
+    }
+
+    // Find the asset locally first to update the UI instantly
+    const targetProperty = propertiesData.find(item => item.id === propertyId);
+    
+    if (targetProperty) {
+        if (targetProperty.isBoosted) {
+            alert("SYSTEM NOTICE: This real estate asset has already been boosted to maximum visibility.");
+            return;
+        }
+
+        // Deduct coin balance
+        appState.coins--;
+        targetProperty.isBoosted = true;
+
+        // ==========================================
+        // NETWORK UPDATE: Tell the backend to boost it globally
+        // ==========================================
+        fetch('/api/properties/boost', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ id: propertyId })
+        })
+        .then(res => res.json())
+        .then(data => {
+            console.log("Global Boost Status:", data.message);
+            alert(`PROMOTION SUCCESS: "${targetProperty.title.toUpperCase()}" has been boosted globally!`);
+        })
+        .catch(err => {
+            console.error("Network boost synchronization failed:", err);
+        });
+
+        // Update UI panels instantly
+        document.getElementById('sh-coins').innerText = appState.coins;
+        
+        evaluateBoostPromotionButtonAccessibility();
+        renderMarketplaceInventoryGrid();
+        saveStateToDeviceLocalStorage(); // Keeps user account session and coins saved locally
+    } else {
+        alert("CRITICAL ERROR: Selected property item index could not be located in system register.");
+    }
+}
+
+// ============================================================================
+// LAYER 7: DIRECT STRUCTURAL ASSET CREATOR & SERVER SYNC ENGINE
+// ============================================================================
+
+// 1. Core Property Submission Engine
+function handleCreateListing() {
+    const titleInput = document.getElementById('listing-title').value.trim();
+    const areaInput = document.getElementById('listing-area').value.trim();
+    const priceInput = parseFloat(document.getElementById('listing-price').value.trim());
+
+    // Pull location metadata fields directly from the seller's active onboarding registration state
+    const targetCountry = appState.country;
+    const targetState = appState.stateRegion;
+    const sellerPhoneNum = appState.user;
+
+    // Strict input field validation check
+    if (!titleInput || !areaInput || isNaN(priceInput) || priceInput <= 0) {
+        alert("CREATION FAULT: Provide a valid name, area descriptor, and numeric price structure.");
+        return;
+    }
+
+    // Capture user input rate mapping rules 
+    let basePriceInUSD = 0;
+    const currentLocale = appState.country.toLowerCase();
+
+    // Math Engine: Convert the seller's typed local price directly to baseline USD internally
+    if (currencyRates[currentLocale]) {
+        const conversionRate = currencyRates[currentLocale].rate;
+        basePriceInUSD = priceInput / conversionRate; 
+    } else {
+        // Fallback option: If the country is unlisted, the inputted price is treated directly as USD value
+        basePriceInUSD = priceInput;
+    }
+
+    // Build unique data object matrix utilizing your exact custom input keys
+    const uniquePropertyAsset = {
+        id: Date.now(), // Generate a unique runtime identification index stamp
+        title: titleInput,
+        country: targetCountry,
+        state: targetState,
+        area: areaInput,
+        priceUSD: basePriceInUSD,
+        sellerPhone: sellerPhoneNum,
+        isBoosted: false
+    };
+
+    // Push into active local UI memory layout array array
+    propertiesData.push(uniquePropertyAsset);
+
+    // ==========================================
+    // LIVE BACKEND MARKETPLACE NETWORK SYNC
+    // ==========================================
+    fetch('/api/properties/create', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(uniquePropertyAsset)
+    })
+    .then(res => res.json())
+    .then(data => {
+        console.log("Global System Server Sync:", data.message);
+        alert(`ASSET REGISTRATION SUCCESS: "${titleInput.toUpperCase()}" has been committed to the live global index!`);
+    })
+    .catch(err => {
+        console.error("Critical Global Sync Error:", err);
+        alert("SERVER ERROR: Property saved locally, but failed to sync across the network.");
+    });
+
+    // Reset input fields within the generator card wrapper layout
+    document.getElementById('listing-title').value = "";
+    document.getElementById('listing-area').value = "";
+    document.getElementById('listing-price').value = "";
+
+    // Refresh display feed automatically to load the new item cards
+    renderMarketplaceInventoryGrid();
+
+    // Update accessibility conditions on boost tools
+    evaluateBoostPromotionButtonAccessibility();
+}
+
+// 2. Intercept and Map Dynamic Boost Actions from Layout Nodes
+document.addEventListener('click', function(event) {
+    if (event.target && event.target.id === 'btn-promote-asset') {
+        // Select the seller's most recent unboosted asset in the database to promote
+        const userProperties = propertiesData.filter(item => item.sellerPhone === appState.user && !item.isBoosted);
+        
+        if (userProperties.length === 0) {
+            alert("PROMOTION FAULT: You do not have any active, unboosted listings available to promote.");
+            return;
+        }
+        
+        // Apply the boost action directly to their property index ID
+        applyBoostTokenToAsset(userProperties[userProperties.length - 1].id);
+    }
+});
+
+// ============================================================================
+// LAYER 8: LIVE GLOBAL MARKETPLACE SYNC ENGINE
+// ============================================================================
+
+// 1. Live Server Data Downloader Pipeline
+function synchronizeMarketplaceDatabaseWithServer() {
+    // Request the global shared house listings matrix from your Python backend
+    fetch('/api/properties/stream')
+    .then(response => {
+        if (!response.ok) throw new Error("Server Database Unreachable");
+        return response.json();
+    })
+    .then(serverData => {
+        // Sync our local array directly with the live global database array
+        propertiesData = serverData;
+        
+        // Re-render the visual display cards for the user instantly
+        renderMarketplaceInventoryGrid();
+    })
+    .catch(error => {
+        console.error("Network Stream Fault: Could not fetch central database assets.", error);
+    });
+}
+
+// 2. Inject Stream Synchronization into App Initialization
+// This completely updates the old local storage initialization rule from earlier
+window.addEventListener('DOMContentLoaded', () => {
+    // 1. Instantly pull down live properties posted by anyone globally
+    synchronizeMarketplaceDatabaseWithServer();
+    
+    // 2. Set up an automatic background polling refresh every 10 seconds 
+    // This makes sure buyers see new listings without manually reloading the app
+    setInterval(synchronizeMarketplaceDatabaseWithServer, 10000);
+});
+
+</script>
+
+
+</body>
+</html>
+"""
+        
+from fastapi import Request
+import json
+
+# Global storage list held inside your server memory
+SERVER_PROPERTIES_DATABASE = []
+
+@app.post("/api/properties/create")
+async def backend_save_property(request: Request):
+    global SERVER_PROPERTIES_DATABASE
+    data = await request.json()
+    SERVER_PROPERTIES_DATABASE.append(data)
+    return {"status": "SUCCESS", "message": "Asset locked to global server matrix"}
+
+@app.get("/api/properties/stream")
+def backend_stream_properties():
+    global SERVER_PROPERTIES_DATABASE
+    return SERVER_PROPERTIES_DATABASE
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 10000))
