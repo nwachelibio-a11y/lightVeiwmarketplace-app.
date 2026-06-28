@@ -143,6 +143,48 @@ def home():
         </footer>
 
         <script>
+        // STEP 1 & 3: AD LOGIC & CHAT ROUTING
+function openSellerChat(sellerId) {
+    // 1. Create the dark pop-up overlay window
+    let adOverlay = document.createElement("div");
+    adOverlay.id = "picture-ad-overlay";
+    adOverlay.style = "position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.95); z-index:9999; display:flex; flex-direction:column; justify-content:center; align-items:center; color:white; font-family:sans-serif;";
+    
+    // 2. Insert the picture box and the 3-second countdown text
+    adOverlay.innerHTML = `
+        <div style="background:#18181b; padding:24px; border-radius:16px; text-align:center; border:1px solid #27272a; max-width:90%; width:340px;">
+            <p style="margin-bottom:12px; color:#a1a1aa; font-size:13px; font-family:monospace;">ADVERTISEMENT</p>
+            
+            <div style="width:300px; height:250px; background:#27272a; margin:15px auto; display:flex; justify-content:center; align-items:center; border-radius:8px; border:1px dashed #52525b;">
+                <span style="color:#a1a1aa; font-size:14px; font-family:monospace;">[ 300x250 Sponsor Banner ]</span>
+            </div>
+            
+            <p id="ad-countdown" style="font-weight:bold; color:#f97316; font-size:16px; font-family:monospace;">Unlocking chat in 3 seconds...</p>
+        </div>
+    `;
+    
+    document.body.appendChild(adOverlay);
+    
+    let secondsLeft = 3;
+    
+    // 3. Start the countdown timer
+    let adTimer = setInterval(() => {
+        secondsLeft -= 1;
+        document.getElementById("ad-countdown").innerText = `Unlocking chat in ${secondsLeft} seconds...`;
+        
+        if (secondsLeft <= 0) {
+            clearInterval(adTimer);
+            document.body.removeChild(adOverlay); // Close ad
+            handleChatRouting(sellerId); // Open chat link
+        }
+    }, 1000);
+}
+
+function handleChatRouting(sellerId) {
+    // This instantly opens the user's mobile mail client pre-addressed to the owner
+    window.location.href = "mailto:" + sellerId + "?subject=Inquiry about your Property Marketplace Listing";
+}
+
             // LAYER 1: GLOBAL DATA REGISTRY
     let session = {
     email: "",
