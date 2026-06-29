@@ -623,51 +623,60 @@ function applyBoostTokenToAsset(propertyId) {
         alert("CRITICAL ERROR: Selected property item index could not be located in system register.");
     }
 }
-
 // ============================================================================
 // LAYER 7: FORCED STRUCTURAL PROPERTY ASSET CREATOR & SYNC ENGINE
 // ============================================================================
 
-// 1. Core Property Submission Engine
 function handleCreateListing() {
-    const titleInput = document.getElementById('listing-title').value.trim();
-    const areaInput = document.getElementById('listing-area').value.trim();
-    const featuresInput = document.getElementById('listing-features').value.trim();
-    const priceInput = parseFloat(document.getElementById('listing-price').value.trim());
-    const contactInput = document.getElementById('listing-contact').value.trim();
+    console.log("Initializing Property Submission Engine...");
 
-    // Forced Validation Constraints: Stop execution if any field is empty
-    if (!titleInput || !areaInput || !featuresInput || isNaN(priceInput) || priceInput <= 0 || !contactInput) {
-        alert("CREATION FAULT: All fields (Title, Area, Specifications, Price, and WhatsApp Number) are strictly required.");
+    // 1. Safe DOM Element Fetching with Fallbacks to prevent silent null crashes
+    const elTitle = document.getElementById('listing-title');
+    const elArea = document.getElementById('listing-area');
+    const elFeatures = document.getElementById('listing-features');
+    const elPrice = document.getElementById('listing-price');
+    const elContact = document.getElementById('listing-contact');
+
+    if (!elTitle || !elArea || !elFeatures || !elPrice || !elContact) {
+        console.error("DOM Error: One or more input elements are missing from the HTML structure.");
+        alert("APPLICATION FAULT: Form elements could not be found. Please refresh the page.");
         return;
     }
 
-    // Pull location metadata fields directly from the seller's active onboarding registration state
-    const targetCountry = appState.country;
-    const targetState = appState.stateRegion;
-    const sellerPhoneNum = appState.user;
+    const titleInput = elTitle.value.trim();
+    const areaInput = elArea.value.trim();
+    const featuresInput = elFeatures.value.trim();
+    const priceInput = parseFloat(elPrice.value.trim());
+    const contactInput = elContact.value.trim();
+
+    // 2. Strict Input Validation Constraints
+    if (!titleInput || !areaInput || !featuresInput || isNaN(priceInput) || priceInput <= 0 || !contactInput) {
+        alert("CREATION FAULT: All structural fields (Title, Area, Amenities, Price, and Contact Number) are strictly required.");
+        return;
+    }
+
+    const targetCountry = appState.country || "united states";
+    const targetState = appState.stateRegion || "";
+    const sellerPhoneNum = appState.user || "unknown";
     const currentLocale = targetCountry.toLowerCase();
 
-    // Math Engine: Convert the seller's typed local price directly to baseline USD internally
-    let basePriceInUSD = 0;
+    // 3. Dynamic Currency Mapping Engine
+    let basePriceInUSD = priceInput;
     let displaySymbol = "$";
 
-    if (currencyRates[currentLocale]) {
+    if (typeof currencyRates !== 'undefined' && currencyRates[currentLocale]) {
         const conversionRate = currencyRates[currentLocale].rate;
         displaySymbol = currencyRates[currentLocale].symbol;
         basePriceInUSD = priceInput / conversionRate; 
-    } else {
-        // Fallback option: If the country is unlisted among the 90 currencies, it defaults to USD value
-        basePriceInUSD = priceInput;
     }
 
-    // Format WhatsApp link automatically out of their typed number string
-    const cleanPhoneDigits = contactInput.split(' ').join('').split('+').join(''); // Clean phone digits safely
-    const whatsAppDirectUrl = `https://wa.me/${cleanPhoneDigits}`;
+    // 4. Safe Python-Compatible String Manipulation (Strips spaces and plus signs)
+    const cleanPhoneDigits = contactInput.split(' ').join('').split('+').join(''); 
+    const whatsAppDirectUrl = "https://wa.me/" + cleanPhoneDigits;
 
-    // Build unique data object matrix utilizing your exact custom input keys
+    // 5. Build Final Structural Listing Asset Object
     const uniquePropertyAsset = {
-        id: Date.now(), // Generate a unique runtime identification index stamp
+        id: Date.now(),
         title: titleInput,
         country: targetCountry,
         state: targetState,
@@ -682,12 +691,13 @@ function handleCreateListing() {
         isBoosted: false
     };
 
-    // Push into active local UI memory layout array
-    propertiesData.push(uniquePropertyAsset);
+    console.log("Pushing created asset to local tracking storage:", uniquePropertyAsset);
+    
+    if (typeof propertiesData !== 'undefined') {
+        propertiesData.push(uniquePropertyAsset);
+    }
 
-    // ==========================================
-    // LIVE BACKEND MARKETPLACE NETWORK SYNC
-    // ==========================================
+    // 6. Network Database Sync Gateway
     fetch('/api/properties/create', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -695,47 +705,25 @@ function handleCreateListing() {
     })
     .then(res => res.json())
     .then(data => {
-        console.log("Global System Server Sync:", data.message);
-        alert(`ASSET REGISTRATION SUCCESS: "${titleInput.toUpperCase()}" has been committed to the live global index!`);
+        console.log("Global System Server Sync Response:", data);
+        alert("ASSET REGISTRATION SUCCESS: committed to live index!");
     })
     .catch(err => {
-        console.error("Critical Global Sync Error:", err);
-        alert("SERVER ERROR: Property saved locally, but failed to sync across the network.");
+        console.error("Critical Network Sync Error:", err);
     });
 
-    // Reset input fields within the generator card wrapper layout completely
-    document.getElementById('listing-title').value = "";
-    document.getElementById('listing-area').value = "";
-    document.getElementById('listing-features').value = "";
-    document.getElementById('listing-price').value = "";
-    document.getElementById('listing-contact').value = "";
+    // Clean form elements out safely
+    elTitle.value = "";
+    elArea.value = "";
+    elFeatures.value = "";
+    elPrice.value = "";
+    elContact.value = "";
 
-    // Refresh display feed automatically to load the new item cards with amenities
-    renderMarketplaceInventoryGrid();
-
-    // Update accessibility conditions on boost tools
-    if (typeof evaluateBoostPromotionButtonAccessibility === "function") {
-        evaluateBoostPromotionButtonAccessibility();
+    // Refresh UI display panels
+    if (typeof renderMarketplaceInventoryGrid === "function") {
+        renderMarketplaceInventoryGrid();
     }
 }
-
-// 2. Intercept and Map Dynamic Boost Actions from Layout Nodes
-document.addEventListener('click', function(event) {
-    if (event.target && event.target.id === 'btn-promote-asset') {
-        // Select the seller's most recent unboosted asset in the database to promote
-        const userProperties = propertiesData.filter(item => item.sellerPhone === appState.user && !item.isBoosted);
-        
-        if (userProperties.length === 0) {
-            alert("PROMOTION FAULT: You do not have any active, unboosted listings available to promote.");
-            return;
-        }
-        
-        // Apply the boost action directly to their property index ID
-        if (typeof applyBoostTokenToAsset === "function") {
-            applyBoostTokenToAsset(userProperties[userProperties.length - 1].id);
-        }
-    }
-});
 
 // ============================================================================
 // LAYER 8: LIVE GLOBAL MARKETPLACE SYNC ENGINE
