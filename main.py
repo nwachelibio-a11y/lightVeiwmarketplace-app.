@@ -662,7 +662,7 @@ function handleCreateListing() {
     }
 
     // Format WhatsApp link automatically out of their typed number string
-    const cleanPhoneDigits = contactInput.replace(/\D/g, ''); // Removes any spaces or plus signs to prevent broken links
+    const cleanPhoneDigits = contactInput.split(' ').join('').split('+').join(''); // Clean phone digits safely
     const whatsAppDirectUrl = `https://wa.me/${cleanPhoneDigits}`;
 
     // Build unique data object matrix utilizing your exact custom input keys
