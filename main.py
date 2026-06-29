@@ -389,88 +389,96 @@ function routeSessionToMarketplace() {
     renderMarketplaceInventoryGrid();
 }
 // ============================================================================
-// LAYER 4: UNIVERSAL CURRENCY MATH & DYNAMIC GRID RENDERER
+// LAYER 4: UNIVERSAL CURRENCY WITH DYNAMIC GRID RENDERER (UPGRADED)
 // ============================================================================
 
-// 1. Core Dynamic Grid Inventory Generator
 function renderMarketplaceInventoryGrid() {
     const gridTarget = document.getElementById('inventory-grid');
-    gridTarget.innerHTML = ""; // Clear active viewport panels
+    if (!gridTarget) return;
 
-    // Filter listings instantly based on user search string values
-    const filteredData = propertiesData.filter(item => {
-        const query = appState.activeSearch.toLowerCase();
-        return item.title.toLowerCase().includes(query) || 
-               item.area.toLowerCase().includes(query) ||
-               item.country.toLowerCase().includes(query) ||
-               item.state.toLowerCase().includes(query);
+    gridTarget.innerHTML = ""; // Clear existing layout views cleanly
+    
+    // Read active user search inputs
+    const searchQuery = document.getElementById('market-search') ? document.getElementById('market-search').value.toLowerCase().trim() : "";
+
+    // Filter listings based on user query matches
+    const filteredAssets = propertiesData.filter(item => {
+        const matchesQuery = !searchQuery || 
+                             item.title.toLowerCase().includes(searchQuery) || 
+                             item.area.toLowerCase().includes(searchQuery) || 
+                             item.country.toLowerCase().includes(searchQuery) ||
+                             (item.features && item.features.toLowerCase().includes(searchQuery));
+        return matchesQuery;
     });
 
-    // If zero listing matches exist in memory, show a clean empty feedback message
-    if (filteredData.length === 0) {
+    if (filteredAssets.length === 0) {
         gridTarget.innerHTML = `
-            <div class="text-center p-8 border border-dashed border-zinc-900 rounded-xl text-zinc-600 font-mono text-xs">
-                NO ACTIVE PROPERTIES LISTED FOR THIS REGION MATRIX
+            <div class="col-span-full text-center border p-8 border-dashed border-zinc-800 rounded-xl py-12">
+                <p class="text-xs font-mono text-zinc-500 uppercase tracking-widest">No matching assets found in global directory</p>
             </div>
         `;
         return;
     }
 
-    // Loop through listings and calculate currency profiles on the fly
-    filteredData.forEach(item => {
-        let displayPriceText = "";
-        const userCountry = appState.country.toLowerCase();
+    // Sort listings: Always push boosted assets to the top of the timeline stream automatically
+    filteredAssets.sort((a, b) => (b.isBoosted ? 1 : 0) - (a.isBoosted ? 1 : 0));
 
-        // Check if user's matching localized country exists inside our exchange registry
-        if (currencyRates[userCountry]) {
-            const config = currencyRates[userCountry];
-            const convertedPrice = (item.priceUSD * config.rate).toLocaleString(undefined, { maximumFractionDigits: 2 });
-            displayPriceText = `${config.symbol} ${convertedPrice}`;
-        } else {
-            // FALLBACK ENGINE: If user country is not listed, display standard base values in USD
-            const usdConfig = currencyRates["united states"];
-            displayPriceText = `${usdConfig.symbol} ${item.priceUSD.toLocaleString()}`;
+    // Loop through properties and print out data-rich listing panels
+    filteredAssets.forEach(item => {
+        const cardWrapper = document.createElement('div');
+        
+        // Dynamically style border colors to make premium boosted items stand out
+        cardWrapper.className = `zinc-card rounded-xl p-5 shadow-2xl space-y-3 relative transition-all duration-300 ${
+            item.isBoosted ? 'border border-amber-500/40 shadow-amber-900/10' : 'border border-zinc-900'
+        }`;
+
+        // Fallback display checks to handle missing values elegantly
+        const displayFeatures = item.features ? item.features : "Standard Housing Unit Configuration";
+        const displaySymbol = item.currencySymbol ? item.currencySymbol : "$";
+        const displayPrice = item.localPrice ? item.localPrice.toLocaleString() : item.priceUSD.toLocaleString();
+
+        // Build premium badge indicator conditionally
+        let premiumBadgeHtml = "";
+        if (item.isBoosted) {
+            premiumBadgeHtml = `
+                <span class="absolute top-3 right-3 bg-gradient-to-r from-amber-500 to-orange-600 text-black text-[9px] font-black px-2 py-0.5 rounded-md font-mono animate-pulse uppercase tracking-wider">
+                    PROMOTED
+                </span>
+            `;
         }
 
-        // Build the dynamic structural asset interface card layout wrapper
-        const card = document.createElement('div');
-        card.className = `zinc-card rounded-xl p-4 space-y-3 relative transition duration-300 ${item.isBoosted ? 'border-orange-500/60 shadow-[0_0_15px_rgba(234,88,12,0.15)]' : ''}`;
-        
-        card.innerHTML = `
-            ${item.isBoosted ? '<span class="absolute top-3 right-3 bg-orange-600 text-white text-[9px] font-black tracking-widest px-1.5 py-0.5 rounded font-mono animate-pulse"> BOOSTED</span>' : ''}
+        // Write fully dynamic structural layout string values
+        cardWrapper.innerHTML = `
+            ${premiumBadgeHtml}
+            
             <div class="space-y-1">
-                <h5 class="text-xs font-bold text-white tracking-wide truncate max-w-[85%]">${item.title.toUpperCase()}</h5>
-                <p class="text-[10px] text-zinc-500 font-mono flex items-center gap-1"> ${item.area}, ${item.state.toUpperCase()}, ${item.country.toUpperCase()}</p>
+                <h4 class="text-sm font-bold text-white font-mono tracking-wide uppercase truncate pr-16">${item.title}</h4>
+                <p class="text-[11px] text-zinc-400 font-mono flex items-center gap-1">
+                    <span class="text-emerald-500"></span> ${item.area.toUpperCase()}, ${item.state.toUpperCase()}, ${item.country.toUpperCase()}
+                </p>
             </div>
-            <div class="flex justify-between items-center pt-2 border-t border-zinc-950">
-                <span class="text-sm font-black text-white font-mono tracking-tight">${displayPriceText}</span>
-                <button onclick="initializeSellerCommunicationStream('${item.sellerPhone}', '${item.title}')" class="px-3 py-1.5 bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 text-[10px] font-bold tracking-wide rounded-md text-zinc-300 font-mono transition">
-                     CHAT WITH SELLER
-                </button>
+
+            <div class="p-2.5 bg-zinc-950/60 border border-zinc-900/60 rounded-lg text-[11px] font-mono text-zinc-400 space-y-1">
+                <span class="text-[9px] text-zinc-600 uppercase font-bold tracking-wider block">Property Specifications:</span>
+                <p class="text-zinc-300 italic">"${displayFeatures}"</p>
+            </div>
+
+            <div class="flex items-center justify-between border-t border-zinc-900 pt-3">
+                <div>
+                    <span class="text-[9px] font-mono text-zinc-500 block uppercase tracking-widest">Valuation Price</span>
+                    <span class="text-sm font-black text-emerald-400 font-mono">${displaySymbol}${displayPrice}</span>
+                </div>
+                
+                <a href="${item.whatsAppUrl || '#'}" target="_blank" class="px-3.5 py-1.5 bg-zinc-900 hover:bg-emerald-600 border border-zinc-800 hover:border-emerald-500 text-white hover:text-white font-bold rounded-lg text-[10px] tracking-wider font-mono transition-all duration-200 uppercase flex items-center gap-1.5 shadow-md">
+                    <span></span> Chat Seller
+                </a>
             </div>
         `;
 
-        // If the item is boosted, prepended directly to the front of the grid layout feed list
-        if (item.isBoosted) {
-            gridTarget.insertBefore(card, gridTarget.firstChild);
-        } else {
-            gridTarget.appendChild(card);
-        }
+        gridTarget.appendChild(cardWrapper);
     });
 }
 
-// 2. Real-Time Search Query Vector Execution Input Link
-function executeInstantSearch() {
-    appState.activeSearch = document.getElementById('market-search').value;
-    renderMarketplaceInventoryGrid();
-}
-
-// 3. Action Click Event: Connect Buyer to Seller using Direct System Line Logs
-function initializeSellerCommunicationStream(phone, title) {
-    const encodedSubject = encodeURIComponent(`Inquiry Regarding Real Estate Property: ${title}`);
-    // Open system client mail link matrix structure securely
-    window.location.href = `mailto:support@lightview.hub?subject=${encodedSubject}&body=Hello, I am interested in your property asset titled: "${title}". Please link me to mobile contact routing line: ${phone}`;
-}
 // ============================================================================
 // LAYER 5: AD ROOM WATCHING & COIN MINTING ENGINE
 // ============================================================================
@@ -617,38 +625,45 @@ function applyBoostTokenToAsset(propertyId) {
 }
 
 // ============================================================================
-// LAYER 7: DIRECT STRUCTURAL ASSET CREATOR & SERVER SYNC ENGINE
+// LAYER 7: FORCED STRUCTURAL PROPERTY ASSET CREATOR & SYNC ENGINE
 // ============================================================================
 
 // 1. Core Property Submission Engine
 function handleCreateListing() {
     const titleInput = document.getElementById('listing-title').value.trim();
     const areaInput = document.getElementById('listing-area').value.trim();
+    const featuresInput = document.getElementById('listing-features').value.trim();
     const priceInput = parseFloat(document.getElementById('listing-price').value.trim());
+    const contactInput = document.getElementById('listing-contact').value.trim();
+
+    // Forced Validation Constraints: Stop execution if any field is empty
+    if (!titleInput || !areaInput || !featuresInput || isNaN(priceInput) || priceInput <= 0 || !contactInput) {
+        alert("CREATION FAULT: All fields (Title, Area, Specifications, Price, and WhatsApp Number) are strictly required.");
+        return;
+    }
 
     // Pull location metadata fields directly from the seller's active onboarding registration state
     const targetCountry = appState.country;
     const targetState = appState.stateRegion;
     const sellerPhoneNum = appState.user;
-
-    // Strict input field validation check
-    if (!titleInput || !areaInput || isNaN(priceInput) || priceInput <= 0) {
-        alert("CREATION FAULT: Provide a valid name, area descriptor, and numeric price structure.");
-        return;
-    }
-
-    // Capture user input rate mapping rules 
-    let basePriceInUSD = 0;
-    const currentLocale = appState.country.toLowerCase();
+    const currentLocale = targetCountry.toLowerCase();
 
     // Math Engine: Convert the seller's typed local price directly to baseline USD internally
+    let basePriceInUSD = 0;
+    let displaySymbol = "$";
+
     if (currencyRates[currentLocale]) {
         const conversionRate = currencyRates[currentLocale].rate;
+        displaySymbol = currencyRates[currentLocale].symbol;
         basePriceInUSD = priceInput / conversionRate; 
     } else {
-        // Fallback option: If the country is unlisted, the inputted price is treated directly as USD value
+        // Fallback option: If the country is unlisted among the 90 currencies, it defaults to USD value
         basePriceInUSD = priceInput;
     }
+
+    // Format WhatsApp link automatically out of their typed number string
+    const cleanPhoneDigits = contactInput.replace(/\D/g, ''); // Removes any spaces or plus signs to prevent broken links
+    const whatsAppDirectUrl = `https://wa.me/${cleanPhoneDigits}`;
 
     // Build unique data object matrix utilizing your exact custom input keys
     const uniquePropertyAsset = {
@@ -657,12 +672,17 @@ function handleCreateListing() {
         country: targetCountry,
         state: targetState,
         area: areaInput,
+        features: featuresInput,
+        localPrice: priceInput,
+        currencySymbol: displaySymbol,
         priceUSD: basePriceInUSD,
+        contactPhone: contactInput,
+        whatsAppUrl: whatsAppDirectUrl,
         sellerPhone: sellerPhoneNum,
         isBoosted: false
     };
 
-    // Push into active local UI memory layout array array
+    // Push into active local UI memory layout array
     propertiesData.push(uniquePropertyAsset);
 
     // ==========================================
@@ -683,16 +703,20 @@ function handleCreateListing() {
         alert("SERVER ERROR: Property saved locally, but failed to sync across the network.");
     });
 
-    // Reset input fields within the generator card wrapper layout
+    // Reset input fields within the generator card wrapper layout completely
     document.getElementById('listing-title').value = "";
     document.getElementById('listing-area').value = "";
+    document.getElementById('listing-features').value = "";
     document.getElementById('listing-price').value = "";
+    document.getElementById('listing-contact').value = "";
 
-    // Refresh display feed automatically to load the new item cards
+    // Refresh display feed automatically to load the new item cards with amenities
     renderMarketplaceInventoryGrid();
 
     // Update accessibility conditions on boost tools
-    evaluateBoostPromotionButtonAccessibility();
+    if (typeof evaluateBoostPromotionButtonAccessibility === "function") {
+        evaluateBoostPromotionButtonAccessibility();
+    }
 }
 
 // 2. Intercept and Map Dynamic Boost Actions from Layout Nodes
@@ -707,7 +731,9 @@ document.addEventListener('click', function(event) {
         }
         
         // Apply the boost action directly to their property index ID
-        applyBoostTokenToAsset(userProperties[userProperties.length - 1].id);
+        if (typeof applyBoostTokenToAsset === "function") {
+            applyBoostTokenToAsset(userProperties[userProperties.length - 1].id);
+        }
     }
 });
 
