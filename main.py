@@ -39,155 +39,147 @@ def home():
     </header>
 
     <main class="flex-grow flex flex-col justify-center my-4">
-"""
-        <div id="view-login" class="zinc-card rounded-xl p-6 shadow-2xl space-y-4">
-            <div class="space-y-1">
-                <h4 class="text-sm font-bold text-white font-mono tracking-wide">ACCESS CONTROL GATEWAY</h4>
-                <p class="text-xs text-zinc-400 font-mono">Provide credentials to initialize secure session link</p>
-            </div>
-            <div class="space-y-3">
-                <div class="space-y-1">
-                    <label class="text-[10px] font-mono text-zinc-500 block font-bold uppercase">ENTER YOUR EMAIL ADDRESS</label>
-                    <input type="email" id="login-mail" placeholder="e.g. user@gmail.com" class="w-full p-3 bg-zinc-950 border border-zinc-800 rounded-lg text-sm text-white font-mono focus:outline-none focus:border-zinc-700">
-                </div>
-                <div class="space-y-1">
-                    <label class="text-[10px] font-mono text-zinc-500 block font-bold uppercase">ENTER HARDWARE PIN TO QUICK SCAN</label>
-                    <input type="password" id="login-pasw" maxlength="4" placeholder="••••" class="w-full p-3 bg-zinc-950 border border-zinc-800 rounded-lg text-sm text-center tracking-widest text-white font-mono focus:outline-none focus:border-zinc-700">
-                </div>
-            </div>
-            <button onclick="handleLoginRequest()" class="w-full p-3 bg-orange-600 hover:bg-orange-700 text-white font-bold rounded-xl text-xs tracking-widest font-mono transition-all duration-200 shadow-lg uppercase">
-                Initialize Secure Access
-            </button>
-        </div>
+<div id="view-login" class="zinc-card rounded-xl p-6 shadow-2xl space-y-4">
+<div class="space-y-1">
+<h4 class="text-sm font-bold text-white font-mono tracking-wide">ACCESS CONTROL GATEWAY</h4>
+<p class="text-xs text-zinc-400 font-mono">Provide credentials to initialize secure session link</p>
+</div>
+<div class="space-y-3">
+<div class="space-y-1">
+<label class="text-[10px] font-mono text-zinc-500 block font-bold uppercase">ENTER YOUR EMAIL ADDRESS</label>
+<input type="email" id="login-mail" placeholder="e.g. user@gmail.com" class="w-full p-3 bg-zinc-950 border border-zinc-800 rounded-lg text-sm text-white font-mono focus:outline-none focus:border-zinc-700">
+</div>
+<div class="space-y-1">
+<label class="text-[10px] font-mono text-zinc-500 block font-bold uppercase">ENTER HARDWARE PIN TO QUICK SCAN</label>
+<input type="password" id="login-pasw" maxlength="4" placeholder="••••" class="w-full p-3 bg-zinc-950 border border-zinc-800 rounded-lg text-sm text-center tracking-widest text-white font-mono focus:outline-none focus:border-zinc-700">
+</div>
+</div>
+<button onclick="handleLoginRequest()" class="w-full p-3 bg-orange-600 hover:bg-orange-700 text-white font-bold rounded-xl text-xs tracking-widest font-mono transition-all duration-200 shadow-lg uppercase">
+Initialize Secure Access
+</button>
+</div>
 
-        <div id="view-role" class="hidden zinc-card rounded-xl p-6 shadow-2xl space-y-4">
-            <div class="space-y-1">
-                <h4 class="text-sm font-bold text-white font-mono tracking-wide text-center">ACCOUNT CLASSIFICATION</h4>
-                <p class="text-xs text-zinc-400 font-mono text-center">Are you searching for housing or listing a property asset?</p>
-            </div>
-            <div class="grid grid-cols-2 gap-3 pt-2">
-                <button onclick="selectRole('Buyer')" class="p-5 bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 text-white rounded-xl text-center flex flex-col items-center justify-center gap-2 transition-all duration-200">
-                    <span class="text-2xl"></span>
-                    <span class="text-xs font-bold font-mono tracking-wider uppercase">I'm a Buyer</span>
-                </button>
-                <button onclick="selectRole('Seller')" class="p-5 bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 text-white rounded-xl text-center flex flex-col items-center justify-center gap-2 transition-all duration-200">
-                    <span class="text-2xl"></span>
-                    <span class="text-xs font-bold font-mono tracking-wider uppercase">I'm a Seller</span>
-                </button>
-            </div>
-        </div>
+<div id="view-role" class="hidden zinc-card rounded-xl p-6 shadow-2xl space-y-4">
+<div class="space-y-1">
+<h4 class="text-sm font-bold text-white font-mono tracking-wide text-center">ACCOUNT CLASSIFICATION</h4>
+<p class="text-xs text-zinc-400 font-mono text-center">Are you searching for housing or listing a property asset?</p>
+</div>
+<div class="grid grid-cols-2 gap-3 pt-2">
+<button onclick="selectRole('Buyer')" class="p-5 bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 text-white rounded-xl text-center flex flex-col items-center justify-center gap-2 transition-all duration-200">
+<span class="text-xs font-bold font-mono tracking-wider uppercase">I'm a Buyer</span>
+</button>
+<button onclick="selectRole('Seller')" class="p-5 bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 text-white rounded-xl text-center flex flex-col items-center justify-center gap-2 transition-all duration-200">
+<span class="text-xs font-bold font-mono tracking-wider uppercase">I'm a Seller</span>
+</button>
+</div>
+</div>
 
-        <div id="view-buyer-location" class="hidden zinc-card rounded-xl p-6 shadow-2xl space-y-4">
-            <h4 class="text-sm font-bold text-white font-mono border-b border-zinc-900 pb-2 uppercase tracking-wider">Location Matrix Setup</h4>
-            <div class="space-y-3">
-                <input type="text" id="buyer-country" placeholder="Country (e.g. Nigeria)" class="w-full p-3 bg-zinc-950 border border-zinc-800 rounded-lg text-sm text-white font-mono focus:outline-none focus:border-zinc-700">
-                <input type="text" id="buyer-state" placeholder="State / Province" class="w-full p-3 bg-zinc-950 border border-zinc-800 rounded-lg text-sm text-white font-mono focus:outline-none focus:border-zinc-700">
-            </div>
-            <button onclick="processBuyerRegistration()" class="w-full p-3 bg-orange-600 hover:bg-orange-700 text-white font-bold rounded-xl text-xs tracking-widest font-mono transition-all duration-200 uppercase">
-                Synchronize Profile Layout
-            </button>
-        </div>
+<div id="view-buyer-location" class="hidden zinc-card rounded-xl p-6 shadow-2xl space-y-4">
+<h4 class="text-sm font-bold text-white font-mono border-b border-zinc-900 pb-2 uppercase tracking-wider">Location Matrix Setup</h4>
+<div class="space-y-3">
+<input type="text" id="buyer-country" placeholder="Country (e.g. Nigeria)" class="w-full p-3 bg-zinc-950 border border-zinc-800 rounded-lg text-sm text-white font-mono focus:outline-none focus:border-zinc-700">
+<input type="text" id="buyer-state" placeholder="State / Province" class="w-full p-3 bg-zinc-950 border border-zinc-800 rounded-lg text-sm text-white font-mono focus:outline-none focus:border-zinc-700">
+</div>
+<button onclick="processBuyerRegistration()" class="w-full p-3 bg-orange-600 hover:bg-orange-700 text-white font-bold rounded-xl text-xs tracking-widest font-mono transition-all duration-200 uppercase">
+Synchronize Profile Layout
+</button>
+</div>
 
-        <div id="view-seller-phone" class="hidden zinc-card rounded-xl p-6 shadow-2xl space-y-4">
-            <div class="space-y-1">
-                <h4 class="text-sm font-bold text-white font-mono border-b border-zinc-900 pb-2 uppercase tracking-wider">Seller Identity Verification</h4>
-                <p class="text-[11px] text-zinc-500 font-mono">Authenticate localized telephone data to establish market legitimacy.</p>
-            </div>
-            <div class="space-y-3 pt-1">
-                <input type="tel" id="seller-phone" placeholder="Phone Number (e.g. 234...)" class="w-full p-3 bg-zinc-950 border border-zinc-800 rounded-lg text-sm text-white font-mono focus:outline-none">
-                <input type="text" id="seller-country" placeholder="Country (e.g. Ghana)" class="w-full p-3 bg-zinc-950 border border-zinc-800 rounded-lg text-sm text-white font-mono focus:outline-none">
-                <input type="text" id="seller-state" placeholder="State / Region" class="w-full p-3 bg-zinc-950 border border-zinc-800 rounded-lg text-sm text-white font-mono focus:outline-none">
-            </div>
-            <button onclick="processSellerRegistration()" class="w-full p-3 bg-orange-600 hover:bg-orange-700 text-white font-bold rounded-xl text-xs tracking-widest font-mono transition-all duration-200 uppercase">
-                Verify Seller Identification
-            </button>
-        </div>
-        <div id="view-marketplace" class="hidden space-y-4">
-            
-            <div class="flex items-center justify-between border-b border-zinc-900 pb-3">
-                <div class="flex flex-col">
-                    <span id="display-user-id" class="text-xs font-bold text-white font-mono uppercase tracking-wide">ID: ACCOUNT PENDING</span>
-                    <span id="display-user-locale" class="text-[10px] text-zinc-500 font-mono uppercase">LOCALE: SYNCING REGION</span>
-                </div>
-                <button onclick="handleLogout()" class="text-[10px] text-zinc-500 hover:text-orange-400 font-mono font-bold border border-zinc-800 hover:border-orange-900/40 px-2.5 py-1 rounded-lg transition-all duration-200 uppercase">
-                    Exit Session
-                </button>
-            </div>
+<div id="view-seller-phone" class="hidden zinc-card rounded-xl p-6 shadow-2xl space-y-4">
+<div class="space-y-1">
+<h4 class="text-sm font-bold text-white font-mono border-b border-zinc-900 pb-2 uppercase tracking-wider">Seller Identity Verification</h4>
+<p class="text-[11px] text-zinc-500 font-mono">Authenticate localized telephone data to establish market legitimacy.</p>
+</div>
+<div class="space-y-3 pt-1">
+<input type="tel" id="seller-phone" placeholder="Phone Number (e.g. 234...)" class="w-full p-3 bg-zinc-950 border border-zinc-800 rounded-lg text-sm text-white font-mono focus:outline-none">
+<input type="text" id="seller-country" placeholder="Country (e.g. Ghana)" class="w-full p-3 bg-zinc-950 border border-zinc-800 rounded-lg text-sm text-white font-mono focus:outline-none">
+<input type="text" id="seller-state" placeholder="State / Region" class="w-full p-3 bg-zinc-950 border border-zinc-800 rounded-lg text-sm text-white font-mono focus:outline-none">
+</div>
+<button onclick="processSellerRegistration()" class="w-full p-3 bg-orange-600 hover:bg-orange-700 text-white font-bold rounded-xl text-xs tracking-widest font-mono transition-all duration-200 uppercase">
+Verify Seller Identification
+</button>
+</div>
 
-            <div id="ad-wallet-header-panel" class="zinc-card rounded-xl p-4 space-y-3 shadow-xl">
-                <div class="flex justify-between items-center border-b border-zinc-900/60 pb-2">
-                    <span class="text-xs font-bold text-zinc-400 font-mono tracking-wider uppercase">Coin Wallet Balance:</span>
-                    <span class="text-sm font-black text-amber-500 font-mono"><span id="sh-coins">0</span> COINS</span>
-                </div>
-                <div class="flex justify-between items-center text-[11px] font-mono text-zinc-500">
-                    <span>Watched Ads Progress:</span>
-                    <span class="text-zinc-400"><span id="sh-watched">0</span> / 10 ADS</span>
-                </div>
-                <div class="grid grid-cols-2 gap-2 pt-1">
-                    <button onclick="watchAdForBoostCoins()" class="p-2.5 bg-zinc-950 hover:bg-zinc-900 border border-zinc-800 text-white font-bold rounded-lg text-[10px] tracking-wider font-mono transition-all duration-200 uppercase">
-                         Watch Ad (+1 Coin)
-                    </button>
-                    <button id="btn-promote-asset" class="p-2.5 bg-amber-500 hover:bg-amber-600 text-black font-black rounded-lg text-[10px] tracking-wider font-mono transition-all duration-200 uppercase shadow-lg shadow-amber-500/10">
-                         Boost Listing (-5)
-                    </button>
-                </div>
-            </div>
+<div id="view-marketplace" class="hidden space-y-4">
+<div class="flex items-center justify-between border-b border-zinc-900 pb-3">
+<div class="flex flex-col">
+<span id="display-user-id" class="text-xs font-bold text-white font-mono uppercase tracking-wide">ID: ACCOUNT PENDING</span>
+<span id="display-user-locale" class="text-[10px] text-zinc-500 font-mono uppercase">LOCALE: SYNCING REGION</span>
+</div>
+<button onclick="handleLogout()" class="text-[10px] text-zinc-500 hover:text-orange-400 font-mono font-bold border border-zinc-800 hover:border-orange-900/40 px-2.5 py-1 rounded-lg transition-all duration-200 uppercase">
+Exit Session
+</button>
+</div>
 
-            <div class="flex gap-2">
-                <input type="text" id="market-search" oninput="renderMarketplaceInventoryGrid()" placeholder="Search assets by city, region, or area..." class="w-full p-3 bg-zinc-950 border border-zinc-800 rounded-lg text-sm text-white font-mono focus:outline-none focus:border-zinc-700">
-            </div>
+<div id="ad-wallet-header-panel" class="zinc-card rounded-xl p-4 space-y-3 shadow-xl">
+<div class="flex justify-between items-center border-b border-zinc-900/60 pb-2">
+<span class="text-xs font-bold text-zinc-400 font-mono tracking-wider uppercase">Coin Wallet Balance:</span>
+<span class="text-sm font-black text-amber-500 font-mono"><span id="sh-coins">0</span> COINS</span>
+</div>
+<div class="flex justify-between items-center text-[11px] font-mono text-zinc-500">
+<span>Watched Ads Progress:</span>
+<span class="text-zinc-400"><span id="sh-watched">0</span> / 10 ADS</span>
+</div>
+<div class="grid grid-cols-2 gap-2 pt-1">
+<button onclick="watchAdForBoostCoins()" class="p-2.5 bg-zinc-950 hover:bg-zinc-900 border border-zinc-800 text-white font-bold rounded-lg text-[10px] tracking-wider font-mono transition-all duration-200 uppercase">
+Watch Ad (+1 Coin)
+</button>
+<button id="btn-promote-asset" class="p-2.5 bg-amber-500 hover:bg-amber-600 text-black font-black rounded-lg text-[10px] tracking-wider font-mono transition-all duration-200 uppercase shadow-lg shadow-amber-500/10">
+Boost Listing (-5)
+</button>
+</div>
+</div>
 
-            <div class="flex items-center justify-between text-zinc-500 font-mono text-[10px] tracking-widest uppercase border-b border-zinc-900 pb-1 pt-2">
-                <span>GLOBAL REAL ESTATE INDEX</span>
-                <span>FEED CHANNELS</span>
-            </div>
+<div class="flex gap-2">
+<input type="text" id="market-search" oninput="renderMarketplaceInventoryGrid()" placeholder="Search assets by city, region, or area..." class="w-full p-3 bg-zinc-950 border border-zinc-800 rounded-lg text-sm text-white font-mono focus:outline-none focus:border-zinc-700">
+</div>
 
-            <div id="inventory-grid" class="grid grid-cols-1 gap-4"></div>
-        </div>
+<div class="flex items-center justify-between text-zinc-500 font-mono text-[10px] tracking-widest uppercase border-b border-zinc-900 pb-1 pt-2">
+<span>GLOBAL REAL ESTATE INDEX</span>
+<span>FEED CHANNELS</span>
+</div>
 
-        <div id="seller-management-panel" class="hidden zinc-card rounded-xl p-5 space-y-4 shadow-2xl mt-2">
-            <h4 class="text-sm font-bold text-white tracking-wide font-mono text-center border-b border-zinc-900 pb-2 uppercase">Post New Real Estate Asset</h4>
-            
-            <div class="space-y-3">
-                <div>
-                    <label class="text-[10px] font-mono text-zinc-400 block mb-1 font-bold uppercase">Asset Description or Name</label>
-                    <input type="text" id="listing-title" placeholder="e.g. Luxury Duplex Apartment" class="w-full p-2.5 bg-zinc-950 border border-zinc-800 rounded-lg text-sm text-white font-mono focus:outline-none focus:border-zinc-700">
-                </div>
-                
-                <div>
-                    <label class="text-[10px] font-mono text-zinc-400 block mb-1 font-bold uppercase">Location Region or City/Area</label>
-                    <input type="text" id="listing-area" placeholder="e.g. Lekki Phase 1, Lagos" class="w-full p-2.5 bg-zinc-950 border border-zinc-800 rounded-lg text-sm text-white font-mono focus:outline-none focus:border-zinc-700">
-                </div>
+<div id="inventory-grid" class="grid grid-cols-1 gap-4"></div>
+</div>
 
-                <div>
-                    <label class="text-[10px] font-mono text-zinc-400 block mb-1 font-bold uppercase">House Specifications & Amenities</label>
-                    <input type="text" id="listing-features" placeholder="e.g. 4 Bedrooms, Swimming Pool, 24/7 Power" class="w-full p-2.5 bg-zinc-950 border border-zinc-800 rounded-lg text-sm text-white font-mono focus:outline-none focus:border-zinc-700">
-                </div>
+<div id="seller-management-panel" class="hidden zinc-card rounded-xl p-5 space-y-4 shadow-2xl mt-2">
+<h4 class="text-sm font-bold text-white tracking-wide font-mono text-center border-b border-zinc-900 pb-2 uppercase">Post New Real Estate Asset</h4>
+<div class="space-y-3">
+<div>
+<label class="text-[10px] font-mono text-zinc-400 block mb-1 font-bold uppercase">Asset Description or Name</label>
+<input type="text" id="listing-title" placeholder="e.g. Luxury Duplex Apartment" class="w-full p-2.5 bg-zinc-950 border border-zinc-800 rounded-lg text-sm text-white font-mono focus:outline-none focus:border-zinc-700">
+</div>
+<div>
+<label class="text-[10px] font-mono text-zinc-400 block mb-1 font-bold uppercase">Location Region or City/Area</label>
+<input type="text" id="listing-area" placeholder="e.g. Lekki Phase 1, Lagos" class="w-full p-2.5 bg-zinc-950 border border-zinc-800 rounded-lg text-sm text-white font-mono focus:outline-none focus:border-zinc-700">
+</div>
+<div>
+<label class="text-[10px] font-mono text-zinc-400 block mb-1 font-bold uppercase">House Specifications & Amenities</label>
+<input type="text" id="listing-features" placeholder="e.g. 4 Bedrooms, Swimming Pool, 24/7 Power" class="w-full p-2.5 bg-zinc-950 border border-zinc-800 rounded-lg text-sm text-white font-mono focus:outline-none focus:border-zinc-700">
+</div>
+<div class="grid grid-cols-2 gap-3">
+<div>
+<label class="text-[10px] font-mono text-zinc-400 block mb-1 font-bold uppercase">Price Value (<span id="local-currency-symbol-label" class="text-emerald-400">USD</span>)</label>
+<input type="number" id="listing-price" placeholder="0.00" class="w-full p-2.5 bg-zinc-950 border border-zinc-800 rounded-lg text-sm text-white font-mono focus:outline-none focus:border-zinc-700">
+</div>
+<div>
+<label class="text-[10px] font-mono text-zinc-400 block mb-1 font-bold uppercase">WhatsApp Link Number</label>
+<input type="tel" id="listing-contact" placeholder="e.g. 2348012345678" class="w-full p-2.5 bg-zinc-950 border border-zinc-800 rounded-lg text-sm text-white font-mono focus:outline-none focus:border-zinc-700">
+</div>
+</div>
+<button onclick="handleCreateListing()" class="w-full p-3 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl text-xs tracking-widest font-mono transition-all duration-200 uppercase shadow-md mt-2">
+Commit Property to Global Index
+</button>
+</div>
+</div>
+</main>
 
-                <div class="grid grid-cols-2 gap-3">
-                    <div>
-                        <label class="text-[10px] font-mono text-zinc-400 block mb-1 font-bold uppercase">Price Value (<span id="local-currency-symbol-label" class="text-emerald-400">USD</span>)</label>
-                        <input type="number" id="listing-price" placeholder="0.00" class="w-full p-2.5 bg-zinc-950 border border-zinc-800 rounded-lg text-sm text-white font-mono focus:outline-none focus:border-zinc-700">
-                    </div>
-                    <div>
-                        <label class="text-[10px] font-mono text-zinc-400 block mb-1 font-bold uppercase">WhatsApp Link Number</label>
-                        <input type="tel" id="listing-contact" placeholder="e.g. 2348012345678" class="w-full p-2.5 bg-zinc-950 border border-zinc-800 rounded-lg text-sm text-white font-mono focus:outline-none focus:border-zinc-700">
-                    </div>
-                </div>
+<footer class="text-center text-zinc-700 font-mono text-[9px] border-t border-zinc-910 pt-3 mt-4 space-y-1">
+<div>Lightview Real Estate Housing Hub v3.0.0</div>
+<div>Active Allocation Buffer: 512MB / 528MB Free Tier Baseline</div>
+</footer>
 
-                <button onclick="handleCreateListing()" class="w-full p-3 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl text-xs tracking-widest font-mono transition-all duration-200 uppercase shadow-md mt-2">
-                    Commit Property to Global Index
-                </button>
-            </div>
-        </div>
-    </main>
-
-    <footer class="text-center text-zinc-700 font-mono text-[9px] border-t border-zinc-910 pt-3 mt-4 space-y-1">
-        <div>Lightview Real Estate Housing Hub v3.0.0</div>
-        <div>Active Allocation Buffer: 512MB / 528MB Free Tier Baseline</div>
-    </footer>
-
-    <script>
+<script>
     // ============================================================================
 // LAYER 1: GLOBAL APPLICATIVE ENGINE REGISTRIES & LIVE EXCHANGE RATE API CONNECT
 // ============================================================================
