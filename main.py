@@ -674,10 +674,26 @@ function renderMarketplaceInventoryGrid() {
         const outputFeaturesText = currentProperty.features ? currentProperty.features : "Standard Residential Asset Architecture Configuration";
         const outputCurrencySymbol = currentProperty.currencySymbol ? currentProperty.currencySymbol : "$";
         
-        // Calibrate price values: if local price calculation exists, format it with thousands separators, otherwise fall back to USD baseline
-        const finalCalculatedPriceText = currentProperty.localPrice 
-            ? currentProperty.localPrice.toLocaleString() 
-            : currentProperty.priceUSD.toLocaleString();
+        // 1. Core pricing math: Always keep the seller's original base price and currency locked
+const basePrice = parseFloat(currentProperty.price) || 0;
+const sellerCurr = currentProperty.currencyCode || "USD";
+const buyerCurr = appState.countryCurrency || "USD";
+
+// 2. Dynamic live bracket calculation based on current exchange rates
+const rateToUsd = globalExchangeRates[sellerCurr] || 1;
+const buyerRateFromUsd = globalExchangeRates[buyerCurr] || 1;
+const amountInUsd = basePrice / rateToUsd;
+const finalConvertedAmount = amountInUsd * buyerRateFromUsd;
+
+// 3. Extract the correct icons/symbols for display
+const sellerSymbol = currencyFrameSymbols[sellerCurr] || sellerCurr;
+const buyerSymbol = currencyFrameSymbols[buyerCurr] || buyerCurr;
+
+// 4. Set up final combined display text rule
+let pricingLayoutString = `${sellerSymbol}${basePrice.toLocaleString()}`;
+if (sellerCurr !== buyerCurr) {
+    pricingLayoutString += ` (${buyerSymbol}${Math.round(finalConvertedAmount).toLocaleString()} approx)`;
+}
 
         // Premium Badge Conditional Compilation Layout
         let optionalPromotedBadgeHtmlString = "";
