@@ -196,11 +196,14 @@ def home():
         <div>Lightview Real Estate Housing Hub v3.0.0</div>
         <div>Active Allocation Buffer: 512MB / 528MB Free Tier Baseline</div>
     </footer>
+    <script>
+// --- BLOCK 1: SYSTEM SETUP & APPLICATION STATE ---
+const API_BASE_URL = window.location.origin; // Dynamically binds to your FastAPI host URL
 
-<script>
-// 1. Central Core System Application State Context Matrix
+// Central Core System Application State Context Matrix
 let appState = {
     user: null,          
+    loginEmail: "",
     role: null,          
     country: "united states", 
     stateRegion: "",
@@ -208,7 +211,8 @@ let appState = {
     coins: 0,            
     watchedAdsCount: 0   
 };
-// 2. Storage Array. Initial Demo contains a Locked base currency origin anchor
+
+// Storage Array. Initial Demo contains a Locked base currency origin anchor
 let propertiesData = [
     {
         id: 1,
@@ -226,8 +230,202 @@ let propertiesData = [
         isBoosted: true
     }
 ];
+// --- BLOCK 2: BACKEND API SYNC HELPERS ---
 
-// Helper structure containing standard mapped currency names
+// Helper to save session memory to browser locally
+function persistCurrentAppState() {
+    localStorage.setItem("lightview_session", JSON.stringify(appState));
+}
+
+// Server Database Helper: Syncs user profile state directly to your Python backend
+async function saveAccountToServer() {
+    try {
+        await fetch(`${API_BASE_URL}/api/accounts/save`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                email: appState.loginEmail,
+                role: appState.role,
+                country: appState.country,
+                state_region: appState.stateRegion,
+                name: appState.name,
+                coins: appState.coins,
+                watched_ads: appState.watchedAdsCount
+            })
+        });
+    } catch (e) {
+        console.error("Failed to sync profile to backend server:", e);
+    }
+}
+// --- BLOCK 3: ACCESS CONTROL GATEWAY ---
+
+async function handleLoginRequest() {
+    const emailInputNode = document.getElementById('login-mail');
+    const pinInputNode = document.getElementById('login-pasw');
+    const clearEmailText = emailInputNode.value.trim().toLowerCase();
+    const clearPinText = pinInputNode.value.trim();
+
+    if (!clearEmailText || !clearEmailText.includes('@') || !clearEmailText.includes('.')) {
+        alert("SECURITY ACCESS DENIED: Please supply a legally formatted email address.");
+        return;
+    }
+    if (clearPinText.length !== 4 || isNaN(clearPinText)) {
+        alert("SECURITY ACCESS DENIED: Authentication PIN must be exactly 4 numerical digits.");
+        return;
+    }
+
+    try {
+        // Look up user profile on your FastAPI backend server database
+        const response = await fetch(`${API_BASE_URL}/api/accounts/${clearEmailText}`);
+        if (response.ok) {
+            const serverProfile = await response.json();
+            
+            // Existing user found: Skip onboarding and restore their account profile!
+            appState.loginEmail = serverProfile.email;
+            appState.user = serverProfile.email;
+            appState.role = serverProfile.role;
+            appState.country = serverProfile.country;
+            appState.stateRegion = serverProfile.state_region || serverProfile.stateRegion;
+            appState.name = serverProfile.name;
+            appState.coins = serverProfile.coins;
+            appState.watchedAdsCount = serverProfile.watched_ads || serverProfile.watchedAdsCount;
+
+            persistCurrentAppState();
+            document.getElementById('view-login').classList.add('hidden');
+            initializeMarketplaceDashboard();
+            return;
+        }
+    } catch (error) {
+        console.log("No backend server profile found. Directing user to onboarding flow...");
+    }
+
+    // New Registration Flow (If server database didn't have this email)
+    appState.loginEmail = clearEmailText;
+    appState.user = clearEmailText;
+    document.getElementById('view-login').classList.add('hidden');
+    document.getElementById('view-role').classList.remove('hidden');
+}
+// --- BLOCK 4: ONBOARDING FLOWS ---
+
+function selectRole(selectedRole) {
+    appState.role = selectedRole;
+    document.getElementById('view-role').classList.add('hidden');
+    if (selectedRole === 'Buyer') {
+        document.getElementById('view-buyer-location').classList.remove('hidden');
+    } else {
+        document.getElementById('view-seller-phone').classList.remove('hidden');
+    }
+}
+
+function processBuyerRegistration() {
+    const countryFieldVal = document.getElementById('buyer-country').value.trim();
+    const stateFieldVal = document.getElementById('buyer-state').value.trim();
+    
+    if (!countryFieldVal || !stateFieldVal) {
+        alert("Please complete both location fields.");
+        return;
+    }
+
+    appState.country = countryFieldVal.toLowerCase();
+    appState.stateRegion = stateFieldVal.toLowerCase();
+
+    document.getElementById('view-buyer-location').classList.add('hidden');
+    document.getElementById('view-identity-setup').classList.remove('hidden');
+}
+
+function processSellerRegistration() {
+    const phoneFieldVal = document.getElementById('seller-phone').value.trim();
+    const countryFieldVal = document.getElementById('seller-country').value.trim();
+    const stateFieldVal = document.getElementById('seller-state').value.trim();
+
+    if (!phoneFieldVal || !countryFieldVal || !stateFieldVal) {
+        alert("Please complete all Seller verification inputs.");
+        return;
+    }
+
+    appState.country = countryFieldVal.toLowerCase();
+    appState.stateRegion = stateFieldVal.toLowerCase();
+
+    document.getElementById('view-seller-phone').classList.add('hidden');
+    document.getElementById('view-identity-setup').classList.remove('hidden');
+}
+
+async function commitUserIdentityDetails() {
+    const inputNameNode = document.getElementById('identity-name');
+    const userEnteredName = inputNameNode.value.trim();
+
+    if (userEnteredName.length <= 4) {
+        alert("AUTHENTICATION ERROR: Your name must be more than 4 letters long.");
+        return;
+    }
+
+    appState.name = userEnteredName;
+    
+    // Save new account details directly to the server database
+    await saveAccountToServer();
+    
+    persistCurrentAppState();
+    initializeMarketplaceDashboard();
+}
+// --- BLOCK 5: DASHBOARD UI & AD SERVICES ---
+
+function initializeMarketplaceDashboard() {
+    document.getElementById('view-identity-setup').classList.add('hidden');
+    document.getElementById('view-buyer-location').classList.add('hidden');
+    document.getElementById('view-seller-phone').classList.add('hidden');
+    document.getElementById('view-marketplace').classList.remove('hidden');
+
+    const displayDisplayName = appState.name ? `${appState.name.toUpperCase()} (${appState.role.toUpperCase()})` : appState.role.toUpperCase();
+    document.getElementById('display-user-id').innerText = `${displayDisplayName} SESSION: ${appState.user}`;
+    document.getElementById('display-user-locale').innerText = `LOCALE: ${appState.stateRegion.toUpperCase()}, ${appState.country.toUpperCase()}`;
+    document.getElementById('sh-coins').innerText = appState.coins;
+    document.getElementById('sh-watched').innerText = appState.watchedAdsCount;
+
+    const targetSymbolField = document.getElementById('local-currency-symbol-label');
+    if (targetSymbolField && currencyRates[appState.country.toLowerCase()]) {
+        targetSymbolField.innerText = currencyRates[appState.country.toLowerCase()].symbol;
+    }
+
+    if (appState.role === 'Seller') {
+        document.getElementById('seller-management-panel').classList.remove('hidden');
+        document.getElementById('ad-wallet-header-panel').classList.remove('hidden');
+    } else {
+        document.getElementById('seller-management-panel').classList.add('hidden');
+        document.getElementById('ad-wallet-header-panel').classList.add('hidden'); 
+    }
+
+    renderMarketplaceInventoryGrid();
+    evaluateBoostPromotionButtonAccessibility();
+}
+
+async function watchAdForBoostCoins() {
+    // Monetag Ad Engine Integration Point
+    appState.coins += 1;
+    appState.watchedAdsCount += 1;
+    
+    document.getElementById('sh-coins').innerText = appState.coins;
+    document.getElementById('sh-watched').innerText = appState.watchedAdsCount;
+    
+    // Instantly sync with your database server on ad completion
+    await saveAccountToServer();
+    persistCurrentAppState();
+    evaluateBoostPromotionButtonAccessibility();
+    alert("Ad Completed! +1 Coin added to your system wallet.");
+}
+
+function evaluateBoostPromotionButtonAccessibility() {
+    const btn = document.getElementById('btn-promote-asset');
+    if (!btn) return;
+    if (appState.coins >= 5) {
+        btn.disabled = false; 
+        btn.className = "w-full p-2.5 bg-amber-500 text-black font-black rounded-lg text-[10px] font-mono uppercase cursor-pointer";
+    } else {
+        btn.disabled = true; 
+        btn.className = "w-full p-2.5 bg-zinc-900 text-zinc-600 font-bold rounded-lg text-[10px] font-mono uppercase cursor-not-allowed opacity-40";
+    }
+}
+// --- BLOCK 6: GLOBALLY MAPPED CURRENCY CONVERSION ---
+
 const globalCurrencySymbolMap = {
     "usd": "$", "eur": "€", "gbp": "£", "ngn": "₦", "ghs": "₵", "kes": "KSh", 
     "zar": "R", "aed": "د.إ", "cad": "C$", "aud": "A$", "jpy": "¥", "cny": "¥",
@@ -293,130 +491,8 @@ function syncLiveGlobalCurrencyExchangeRates() {
         console.error("Currency Sync Error:", error);
     });
 }
-// --- PERSISTENT GMAIL REGISTRATION INDEX ---
-// This acts as our persistent client ledger tracking created email accounts to deny duplicate configurations
-function getRegisteredEmails() {
-    const list = localStorage.getItem("lightview_registered_users");
-    return list ? JSON.parse(list) : [];
-}
+// --- BLOCK 7: REAL ESTATE CATALOG & SESSION MANAGEMENT ---
 
-function registerEmailInSystem(email) {
-    const list = getRegisteredEmails();
-    if (!list.includes(email.toLowerCase())) {
-        list.push(email.toLowerCase());
-        localStorage.setItem("lightview_registered_users", JSON.stringify(list));
-    }
-}
-
-function handleLoginRequest() {
-    const emailInputNode = document.getElementById('login-mail');
-    const pinInputNode = document.getElementById('login-pasw');
-    const clearEmailText = emailInputNode.value.trim().toLowerCase();
-    const clearPinText = pinInputNode.value.trim();
-
-    if (!clearEmailText || !clearEmailText.includes('@') || !clearEmailText.includes('.')) {
-        alert("SECURITY ACCESS DENIED: Please supply a legally formatted email address.");
-        return;
-    }
-    if (clearPinText.length !== 4 || isNaN(clearPinText)) {
-        alert("SECURITY ACCESS DENIED: Authentication PIN must be exactly 4 numerical digits.");
-        return;
-    }
-
-    // GMAIL REGISTRATION DUPLICATE BLOCKING CHECK
-    const list = getRegisteredEmails();
-    
-    // If the email is already registered but there's no active session for it, block creation of a duplicate!
-    const cachedSessionToken = localStorage.getItem("lightview_session");
-    let currentSessionUser = "";
-    if (cachedSessionToken) {
-        try {
-            currentSessionUser = JSON.parse(cachedSessionToken).user.toLowerCase();
-        } catch(e) {}
-    }
-
-    if (list.includes(clearEmailText) && currentSessionUser !== clearEmailText) {
-        alert("ACCESS DENIED: An account with this email address already exists. Try logging in with a different device, or clear your session.");
-        return;
-    }
-
-    appState.user = clearEmailText;
-    document.getElementById('view-login').classList.add('hidden');
-    document.getElementById('view-role').classList.remove('hidden');
-}
-
-function selectRole(selectedRole) {
-    appState.role = selectedRole;
-    document.getElementById('view-role').classList.add('hidden');
-    if (selectedRole === 'Buyer') {
-        document.getElementById('view-buyer-location').classList.remove('hidden');
-    } else {
-        document.getElementById('view-seller-phone').classList.remove('hidden');
-    }
-}
-function processBuyerRegistration() {
-    const countryFieldVal = document.getElementById('buyer-country').value.trim();
-    const stateFieldVal = document.getElementById('buyer-state').value.trim();
-    
-    if (!countryFieldVal || !stateFieldVal) {
-        alert("Please complete both location fields.");
-        return;
-    }
-
-    appState.country = countryFieldVal.toLowerCase();
-    appState.stateRegion = stateFieldVal.toLowerCase();
-
-    // Transition to the Name Gate
-    document.getElementById('view-buyer-location').classList.add('hidden');
-    document.getElementById('view-identity-setup').classList.remove('hidden');
-}
-
-function processSellerRegistration() {
-    const phoneFieldVal = document.getElementById('seller-phone').value.trim();
-    const countryFieldVal = document.getElementById('seller-country').value.trim();
-    const stateFieldVal = document.getElementById('seller-state').value.trim();
-
-    if (!phoneFieldVal || !countryFieldVal || !stateFieldVal) {
-        alert("Please complete all Seller verification inputs.");
-        return;
-    }
-
-    appState.user = phoneFieldVal; 
-    appState.country = countryFieldVal.toLowerCase();
-    appState.stateRegion = stateFieldVal.toLowerCase();
-
-    // Transition to the Name Gate
-    document.getElementById('view-seller-phone').classList.add('hidden');
-    document.getElementById('view-identity-setup').classList.remove('hidden');
-}
-
-// --- NEW VALIDATION GATE FOR NAMES OVER 4 LETTERS ---
-function commitUserIdentityDetails() {
-    const inputNameNode = document.getElementById('identity-name');
-    const userEnteredName = inputNameNode.value.trim();
-
-    if (userEnteredName.length <= 4) {
-        alert("AUTHENTICATION ERROR: Your name must be more than 4 letters long.");
-        return;
-    }
-
-    appState.name = userEnteredName;
-    
-    // Add Gmail to the register pool as used
-    const sessionToken = localStorage.getItem("lightview_session");
-    let loginEmailCandidate = appState.user;
-    if (sessionToken) {
-        try {
-            loginEmailCandidate = JSON.parse(sessionToken).emailToRegister || appState.user;
-        } catch(e) {}
-    }
-    
-    // Bind to the registered users pool
-    registerEmailInSystem(loginEmailCandidate);
-    
-    persistCurrentAppState();
-    initializeMarketplaceDashboard();
-}
 function renderMarketplaceInventoryGrid() {
     const gridTargetElement = document.getElementById('inventory-grid');
     if (!gridTargetElement) return;
@@ -440,11 +516,9 @@ function renderMarketplaceInventoryGrid() {
         const itemCardContainerNode = document.createElement('div');
         itemCardContainerNode.className = `zinc-card rounded-xl p-5 space-y-3 relative border ${currentProperty.isBoosted ? 'border-amber-500/40' : 'border-zinc-900'}`;
 
-        // --- SMART DICTIONARY TO NORMALIZE COUNTRY ALIASES ---
         function normalizeCountryName(countryInput) {
             if (!countryInput) return "";
             const cleanInput = countryInput.toLowerCase().trim();
-            
             const aliasMap = {
                 "america": "united states",
                 "usa": "united states",
@@ -457,12 +531,10 @@ function renderMarketplaceInventoryGrid() {
                 "uk": "united kingdom",
                 "britain": "united kingdom"
             };
-            
             return aliasMap[cleanInput] || cleanInput;
         }
 
         const originalSellerPrice = currentProperty.localPrice;
-        
         let originalSellerSymbol = currentProperty.currencySymbol;
         const rawSellerCountry = currentProperty.sellerCountry || currentProperty.country;
         const sellerCountryKey = normalizeCountryName(rawSellerCountry);
@@ -478,7 +550,6 @@ function renderMarketplaceInventoryGrid() {
         let sellerPriceLineHtml = `${originalSellerSymbol}${originalSellerPrice.toLocaleString()}`;
         let buyerApproxLineHtml = "";
 
-        // Calculate and format currency conversions
         if (sellerCountryKey && buyerCountryKey && sellerCountryKey !== buyerCountryKey) {
             const sellerRateObj = currencyRates[sellerCountryKey];
             const buyerRateObj = currencyRates[buyerCountryKey];
@@ -532,54 +603,33 @@ function renderMarketplaceInventoryGrid() {
         gridTargetElement.appendChild(itemCardContainerNode);
     });
 }
-function initializeMarketplaceDashboard() {
-    document.getElementById('view-identity-setup').classList.add('hidden');
-    document.getElementById('view-buyer-location').classList.add('hidden');
-    document.getElementById('view-seller-phone').classList.add('hidden');
-    document.getElementById('view-marketplace').classList.remove('hidden');
 
-    const displayDisplayName = appState.name ? `${appState.name.toUpperCase()} (${appState.role.toUpperCase()})` : appState.role.toUpperCase();
-    document.getElementById('display-user-id').innerText = `${displayDisplayName} SESSION: ${appState.user}`;
-    document.getElementById('display-user-locale').innerText = `LOCALE: ${appState.stateRegion.toUpperCase()}, ${appState.country.toUpperCase()}`;
-    document.getElementById('sh-coins').innerText = appState.coins;
-    document.getElementById('sh-watched').innerText = appState.watchedAdsCount;
-
-    const targetSymbolField = document.getElementById('local-currency-symbol-label');
-    if (targetSymbolField && currencyRates[appState.country.toLowerCase()]) {
-        targetSymbolField.innerText = currencyRates[appState.country.toLowerCase()].symbol;
-    }
-
-    if (appState.role === 'Seller') {
-        document.getElementById('seller-management-panel').classList.remove('hidden');
-        document.getElementById('ad-wallet-header-panel').classList.remove('hidden');
-    } else {
-        document.getElementById('seller-management-panel').classList.add('hidden');
-        document.getElementById('ad-wallet-header-panel').classList.add('hidden'); 
-    }
-
-    renderMarketplaceInventoryGrid();
-    evaluateBoostPromotionButtonAccessibility();
-}
-
-function checkPersistentSessionHandshake() {
+async function checkPersistentSessionHandshake() {
     const cachedSessionToken = localStorage.getItem("lightview_session");
     if (cachedSessionToken) {
         try {
             const parsedSession = JSON.parse(cachedSessionToken);
-            appState.user = parsedSession.user;
-            appState.role = parsedSession.role;
-            appState.country = parsedSession.country;
-            appState.stateRegion = parsedSession.stateRegion;
-            appState.name = parsedSession.name || "";
-            appState.coins = parsedSession.coins || 0;
-            appState.watchedAdsCount = parsedSession.watchedAdsCount || 0;
             
-            document.getElementById('view-login').classList.add('hidden');
-            
-            syncLiveGlobalCurrencyExchangeRates().then(() => {
+            // Re-authenticate session status with backend server
+            const response = await fetch(`${API_BASE_URL}/api/accounts/${parsedSession.loginEmail || parsedSession.user}`);
+            if (response.ok) {
+                const serverProfile = await response.json();
+                
+                appState.loginEmail = serverProfile.email;
+                appState.user = serverProfile.email;
+                appState.role = serverProfile.role;
+                appState.country = serverProfile.country;
+                appState.stateRegion = serverProfile.state_region || serverProfile.stateRegion;
+                appState.name = serverProfile.name;
+                appState.coins = serverProfile.coins;
+                appState.watchedAdsCount = serverProfile.watched_ads || serverProfile.watchedAdsCount;
+
+                document.getElementById('view-login').classList.add('hidden');
+                
+                await syncLiveGlobalCurrencyExchangeRates();
                 initializeMarketplaceDashboard();
-            });
-            return true;
+                return true;
+            }
         } catch(e) {
             localStorage.removeItem("lightview_session");
         }
@@ -588,32 +638,20 @@ function checkPersistentSessionHandshake() {
     return false;
 }
 
-function persistCurrentAppState() {
-    localStorage.setItem("lightview_session", JSON.stringify(appState));
-}
-
 function handleLogout() {
     localStorage.removeItem("lightview_session");
-    appState.user = null; appState.role = null; appState.country = "united states";
-    appState.stateRegion = ""; appState.name = ""; appState.coins = 0; appState.watchedAdsCount = 0;
+    appState.user = null; 
+    appState.loginEmail = "";
+    appState.role = null; 
+    appState.country = "united states";
+    appState.stateRegion = ""; 
+    appState.name = ""; 
+    appState.coins = 0; 
+    appState.watchedAdsCount = 0;
 
     document.getElementById('view-marketplace').classList.add('hidden');
     document.getElementById('seller-management-panel').classList.add('hidden');
     document.getElementById('view-login').classList.remove('hidden');
-}
-
-function watchAdForBoostCoins() {
-    alert("No ads available at the moment. Please try again later.");
-}
-
-function evaluateBoostPromotionButtonAccessibility() {
-    const btn = document.getElementById('btn-promote-asset');
-    if (!btn) return;
-    if (appState.coins >= 5) {
-        btn.disabled = false; btn.className = "w-full p-2.5 bg-amber-500 text-black font-black rounded-lg text-[10px] font-mono uppercase cursor-pointer";
-    } else {
-        btn.disabled = true; btn.className = "w-full p-2.5 bg-zinc-900 text-zinc-600 font-bold rounded-lg text-[10px] font-mono uppercase cursor-not-allowed opacity-40";
-    }
 }
 
 function handleCreateListing() {
@@ -643,6 +681,7 @@ function handleCreateListing() {
 window.addEventListener('DOMContentLoaded', () => {
     checkPersistentSessionHandshake();
 });
+
 </script>
 </body>
 </html>
