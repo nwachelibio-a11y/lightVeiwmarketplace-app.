@@ -196,11 +196,11 @@ def home():
         <div>Lightview Real Estate Housing Hub v3.0.0</div>
         <div>Active Allocation Buffer: 512MB / 528MB Free Tier Baseline</div>
     </footer>
-    <script>
-// --- BLOCK 1: SYSTEM SETUP & APPLICATION STATE ---
-const API_BASE_URL = window.location.origin; // Dynamically binds to your FastAPI host URL
+<script>
+// --- BLOCK 1: STATE & BASE CONFIGURATION ---
+const API_BASE_URL = window.location.origin;
 
-// Central Core System Application State Context Matrix
+// Core Application State Context Matrix
 let appState = {
     user: null,          
     loginEmail: "",
@@ -230,36 +230,46 @@ let propertiesData = [
         isBoosted: true
     }
 ];
-// --- BLOCK 2: BACKEND API SYNC HELPERS ---
 
-// Helper to save session memory to browser locally
+const globalCurrencySymbolMap = {
+    "usd": "$", "eur": "€", "gbp": "£", "ngn": "₦", "ghs": "₵", "kes": "KSh", 
+    "zar": "R", "aed": "د.إ", "cad": "C$", "aud": "A$", "jpy": "¥", "cny": "¥",
+    "inr": "₹", "rub": "₽", "brl": "R$", "mxn": "$", "sar": "SR", "egp": "E£"
+};
+
+let currencyRates = {
+    "united states": { symbol: "$", rate: 1.00, code: "USD" },
+    "united kingdom": { symbol: "£", rate: 0.79, code: "GBP" },
+    "eurozone": { symbol: "€", rate: 0.93, code: "EUR" },
+    "nigeria": { symbol: "₦", rate: 1500.00, code: "NGN" },
+    "ghana": { symbol: "₵", rate: 15.10, code: "GHS" },
+    "kenya": { symbol: "KSh", rate: 129.50, code: "KES" },
+    "south africa": { symbol: "R", rate: 18.20, code: "ZAR" },
+    "uae": { symbol: "د.إ", rate: 3.67, code: "AED" },
+    "china": { symbol: "¥", rate: 7.25, code: "CNY" }
+};
+// --- BLOCK 2: LOCAL STORAGE DB HELPERS ---
+
+// Save current active session state
 function persistCurrentAppState() {
     localStorage.setItem("lightview_session", JSON.stringify(appState));
 }
 
-// Server Database Helper: Syncs user profile state directly to your Python backend
-async function saveAccountToServer() {
-    try {
-        await fetch(`${API_BASE_URL}/api/accounts/save`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-                email: appState.loginEmail,
-                role: appState.role,
-                country: appState.country,
-                state_region: appState.stateRegion,
-                name: appState.name,
-                coins: appState.coins,
-                watched_ads: appState.watchedAdsCount
-            })
-        });
-    } catch (e) {
-        console.error("Failed to sync profile to backend server:", e);
-    }
+// Save registered accounts globally in local storage to prevent duplicate registrations
+function saveRegisteredAccountToPool(email, accountData) {
+    let accounts = JSON.parse(localStorage.getItem("registered_accounts") || "{}");
+    accounts[email] = accountData;
+    localStorage.setItem("registered_accounts", JSON.stringify(accounts));
 }
-// --- BLOCK 3: ACCESS CONTROL GATEWAY ---
 
-async function handleLoginRequest() {
+// Check if an email has already registered
+function getRegisteredAccount(email) {
+    let accounts = JSON.parse(localStorage.getItem("registered_accounts") || "{}");
+    return accounts[email] || null;
+}
+// --- BLOCK 3: LOGIN CONTROL GATEWAY ---
+
+function handleLoginRequest() {
     const emailInputNode = document.getElementById('login-mail');
     const pinInputNode = document.getElementById('login-pasw');
     const clearEmailText = emailInputNode.value.trim().toLowerCase();
@@ -274,38 +284,32 @@ async function handleLoginRequest() {
         return;
     }
 
-    try {
-        // Look up user profile on your FastAPI backend server database
-        const response = await fetch(`${API_BASE_URL}/api/accounts/${clearEmailText}`);
-        if (response.ok) {
-            const serverProfile = await response.json();
-            
-            // Existing user found: Skip onboarding and restore their account profile!
-            appState.loginEmail = serverProfile.email;
-            appState.user = serverProfile.email;
-            appState.role = serverProfile.role;
-            appState.country = serverProfile.country;
-            appState.stateRegion = serverProfile.state_region || serverProfile.stateRegion;
-            appState.name = serverProfile.name;
-            appState.coins = serverProfile.coins;
-            appState.watchedAdsCount = serverProfile.watched_ads || serverProfile.watchedAdsCount;
+    // Look up email in local storage database
+    const existingAccount = getRegisteredAccount(clearEmailText);
 
-            persistCurrentAppState();
-            document.getElementById('view-login').classList.add('hidden');
-            initializeMarketplaceDashboard();
-            return;
-        }
-    } catch (error) {
-        console.log("No backend server profile found. Directing user to onboarding flow...");
+    if (existingAccount) {
+        // Restore saved account details and skip registration/onboarding completely!
+        appState.user = clearEmailText;
+        appState.loginEmail = clearEmailText;
+        appState.role = existingAccount.role;
+        appState.country = existingAccount.country;
+        appState.stateRegion = existingAccount.stateRegion;
+        appState.name = existingAccount.name;
+        appState.coins = existingAccount.coins || 0;
+        appState.watchedAdsCount = existingAccount.watchedAdsCount || 0;
+
+        persistCurrentAppState();
+        document.getElementById('view-login').classList.add('hidden');
+        initializeMarketplaceDashboard();
+    } else {
+        // New Registration: Proceed through role selection onboarding
+        appState.loginEmail = clearEmailText;
+        appState.user = clearEmailText;
+        document.getElementById('view-login').classList.add('hidden');
+        document.getElementById('view-role').classList.remove('hidden');
     }
-
-    // New Registration Flow (If server database didn't have this email)
-    appState.loginEmail = clearEmailText;
-    appState.user = clearEmailText;
-    document.getElementById('view-login').classList.add('hidden');
-    document.getElementById('view-role').classList.remove('hidden');
 }
-// --- BLOCK 4: ONBOARDING FLOWS ---
+// --- BLOCK 4: NEW USER ONBOARDING ---
 
 function selectRole(selectedRole) {
     appState.role = selectedRole;
@@ -350,7 +354,7 @@ function processSellerRegistration() {
     document.getElementById('view-identity-setup').classList.remove('hidden');
 }
 
-async function commitUserIdentityDetails() {
+function commitUserIdentityDetails() {
     const inputNameNode = document.getElementById('identity-name');
     const userEnteredName = inputNameNode.value.trim();
 
@@ -361,13 +365,20 @@ async function commitUserIdentityDetails() {
 
     appState.name = userEnteredName;
     
-    // Save new account details directly to the server database
-    await saveAccountToServer();
-    
+    // Save account state to register pool to prevent duplicate registrations in the future
+    saveRegisteredAccountToPool(appState.loginEmail, {
+        role: appState.role,
+        country: appState.country,
+        stateRegion: appState.stateRegion,
+        name: appState.name,
+        coins: appState.coins,
+        watchedAdsCount: appState.watchedAdsCount
+    });
+
     persistCurrentAppState();
     initializeMarketplaceDashboard();
 }
-// --- BLOCK 5: DASHBOARD UI & AD SERVICES ---
+// --- BLOCK 5: DASHBOARD UI & AD SYSTEMS ---
 
 function initializeMarketplaceDashboard() {
     document.getElementById('view-identity-setup').classList.add('hidden');
@@ -398,16 +409,23 @@ function initializeMarketplaceDashboard() {
     evaluateBoostPromotionButtonAccessibility();
 }
 
-async function watchAdForBoostCoins() {
-    // Monetag Ad Engine Integration Point
+function watchAdForBoostCoins() {
     appState.coins += 1;
     appState.watchedAdsCount += 1;
     
     document.getElementById('sh-coins').innerText = appState.coins;
     document.getElementById('sh-watched').innerText = appState.watchedAdsCount;
     
-    // Instantly sync with your database server on ad completion
-    await saveAccountToServer();
+    // Save updated coin count to account database pool
+    saveRegisteredAccountToPool(appState.loginEmail, {
+        role: appState.role,
+        country: appState.country,
+        stateRegion: appState.stateRegion,
+        name: appState.name,
+        coins: appState.coins,
+        watchedAdsCount: appState.watchedAdsCount
+    });
+
     persistCurrentAppState();
     evaluateBoostPromotionButtonAccessibility();
     alert("Ad Completed! +1 Coin added to your system wallet.");
@@ -424,32 +442,12 @@ function evaluateBoostPromotionButtonAccessibility() {
         btn.className = "w-full p-2.5 bg-zinc-900 text-zinc-600 font-bold rounded-lg text-[10px] font-mono uppercase cursor-not-allowed opacity-40";
     }
 }
-// --- BLOCK 6: GLOBALLY MAPPED CURRENCY CONVERSION ---
-
-const globalCurrencySymbolMap = {
-    "usd": "$", "eur": "€", "gbp": "£", "ngn": "₦", "ghs": "₵", "kes": "KSh", 
-    "zar": "R", "aed": "د.إ", "cad": "C$", "aud": "A$", "jpy": "¥", "cny": "¥",
-    "inr": "₹", "rub": "₽", "brl": "R$", "mxn": "$", "sar": "SR", "egp": "E£"
-};
-
-let currencyRates = {
-    "united states": { symbol: "$", rate: 1.00, code: "USD" },
-    "united kingdom": { symbol: "£", rate: 0.79, code: "GBP" },
-    "eurozone": { symbol: "€", rate: 0.93, code: "EUR" },
-    "nigeria": { symbol: "₦", rate: 1500.00, code: "NGN" },
-    "ghana": { symbol: "₵", rate: 15.10, code: "GHS" },
-    "kenya": { symbol: "KSh", rate: 129.50, code: "KES" },
-    "south africa": { symbol: "R", rate: 18.20, code: "ZAR" },
-    "uae": { symbol: "د.إ", rate: 3.67, code: "AED" },
-    "china": { symbol: "¥", rate: 7.25, code: "CNY" }
-};
 
 function syncLiveGlobalCurrencyExchangeRates() {
-    console.log("Initializing dynamic connection to global currency API pipeline...");
-    
+    console.log("Initializing connection to currency rates...");
     return fetch('https://open.er-api.com/v6/latest/USD')
     .then(response => {
-        if (!response.ok) throw new Error("Network currency endpoint synchronization failure.");
+        if (!response.ok) throw new Error("API sync failed.");
         return response.json();
     })
     .then(data => {
@@ -491,7 +489,7 @@ function syncLiveGlobalCurrencyExchangeRates() {
         console.error("Currency Sync Error:", error);
     });
 }
-// --- BLOCK 7: REAL ESTATE CATALOG & SESSION MANAGEMENT ---
+// --- BLOCK 6: INVENTORY, LOGOUT, AND AUTO-LOGIN ---
 
 function renderMarketplaceInventoryGrid() {
     const gridTargetElement = document.getElementById('inventory-grid');
@@ -604,32 +602,29 @@ function renderMarketplaceInventoryGrid() {
     });
 }
 
+// Check if a user session is active on page load
 async function checkPersistentSessionHandshake() {
     const cachedSessionToken = localStorage.getItem("lightview_session");
     if (cachedSessionToken) {
         try {
             const parsedSession = JSON.parse(cachedSessionToken);
             
-            // Re-authenticate session status with backend server
-            const response = await fetch(`${API_BASE_URL}/api/accounts/${parsedSession.loginEmail || parsedSession.user}`);
-            if (response.ok) {
-                const serverProfile = await response.json();
-                
-                appState.loginEmail = serverProfile.email;
-                appState.user = serverProfile.email;
-                appState.role = serverProfile.role;
-                appState.country = serverProfile.country;
-                appState.stateRegion = serverProfile.state_region || serverProfile.stateRegion;
-                appState.name = serverProfile.name;
-                appState.coins = serverProfile.coins;
-                appState.watchedAdsCount = serverProfile.watched_ads || serverProfile.watchedAdsCount;
+            // Rehydrate App state
+            appState.loginEmail = parsedSession.loginEmail;
+            appState.user = parsedSession.user;
+            appState.role = parsedSession.role;
+            appState.country = parsedSession.country;
+            appState.stateRegion = parsedSession.stateRegion;
+            appState.name = parsedSession.name;
+            appState.coins = parsedSession.coins || 0;
+            appState.watchedAdsCount = parsedSession.watchedAdsCount || 0;
 
-                document.getElementById('view-login').classList.add('hidden');
-                
-                await syncLiveGlobalCurrencyExchangeRates();
-                initializeMarketplaceDashboard();
-                return true;
-            }
+            // Skip login screen entirely on load and open Home screen
+            document.getElementById('view-login').classList.add('hidden');
+            
+            await syncLiveGlobalCurrencyExchangeRates();
+            initializeMarketplaceDashboard();
+            return true;
         } catch(e) {
             localStorage.removeItem("lightview_session");
         }
@@ -681,7 +676,6 @@ function handleCreateListing() {
 window.addEventListener('DOMContentLoaded', () => {
     checkPersistentSessionHandshake();
 });
-
 </script>
 </body>
 </html>
